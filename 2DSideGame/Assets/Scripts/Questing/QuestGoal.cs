@@ -14,7 +14,6 @@ public abstract class QuestGoal : MonoBehaviour
     public abstract void Init();
     public abstract void Evaluate();
     protected abstract void OnComplete();
-
     public abstract void DisplayUI();
 
     public virtual void OnPickUpItem(int itemType)

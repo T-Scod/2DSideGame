@@ -2,29 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// [RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(PlayerController))]
 [AddComponentMenu("Quests/QuestManager")]
-public class QuestManager : MonoBehaviour
+public sealed class QuestManager : MonoBehaviour
 {
     #region Make Singleton
     static QuestManager instance = null;
 
     private void Awake()
     {
-        if (instance == null)
-            instance = this;
-        else
-            Destroy(gameObject);
+        instance = this;
     }
     #endregion
 
-    // PlayerController player;
+    PlayerController player;
     List<Quest> quests = new List<Quest>();
 
     // Start is called before the first frame update
     void Start()
     {
-        // player = GetComponent<PlayerController>();
+        player = GetComponent<PlayerController>();
 
         quests.ForEach(q => q.Init());
     }
@@ -32,14 +29,13 @@ public class QuestManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-	    quests.RemoveAll(q => q.complete);
+        quests.RemoveAll(q => q.complete);
         quests.ForEach(q => q.Evaluate());
         quests.ForEach(q => q.DisplayUI());
     }
 
     public static void AddQuest(Quest quest)
     {
-        quest.Activate();
 	    instance.quests.Add(quest);
     }
 

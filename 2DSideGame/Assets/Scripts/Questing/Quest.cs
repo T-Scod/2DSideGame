@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Quest
+public sealed class Quest
 {
     [SerializeField]
     string title;
@@ -12,71 +12,66 @@ public class Quest
     string description;
 
     [SerializeField]
-    public List<QuestGoal> goals = new List<QuestGoal>();
+    QuestStep[] questSteps;
+    int currentStep = 0;
 
-    public bool active { get; private set; }
-    public bool complete { get; protected set; }
-    
-    public delegate void PickUpItem(int itemType);
-    public delegate void DamageDealt(float damageDealt, int objectType);
-    public delegate void AreaEntered(int areaID);
-    public delegate void NPCConversation(string npcName);
+    public bool complete { get; private set; }
 
     public void Init()
     {
-        goals.ForEach(g => g.Init());
+        foreach (QuestStep step in questSteps)
+            step.Init();
     }
 
     public void Evaluate()
     {
-        goals.ForEach(g => g.Evaluate());
+        if (questSteps[currentStep].complete)
+            currentStep++;
 
-        complete = goals.TrueForAll(g => g.complete);
-
-        if (complete)
+        if (complete = currentStep == questSteps.Length)
             OnComplete();
-    }
-
-    public void Activate()
-    {
-        active = true;
+        else
+            questSteps[currentStep].Evaluate();
     }
 
     public void DisplayUI()
     {
         Debug.Log(title);
         Debug.Log(description);
-        goals.ForEach(g => g.DisplayUI());
+
+        if (currentStep == questSteps.Length)
+            questSteps[currentStep - 1].DisplayUI();
+        else
+            questSteps[currentStep].DisplayUI();
     }
 
     void OnComplete()
     {
-        active = false;
         Debug.Log("Quest Complete");
     }
 
     public void OnPickItem(int itemType)
     {
-        goals.ForEach(g => g.OnPickUpItem(itemType));
+        questSteps[currentStep].OnPickItem(itemType);
     }
 
     public void OnDamageDealt(float damageDealt, int objectType)
     {
-        goals.ForEach(g => g.OnDamageDealt(damageDealt, objectType));
+        questSteps[currentStep].OnDamageDealt(damageDealt, objectType);
     }
 
     public void OnEnemyKilled(int enemyType)
     {
-        goals.ForEach(g => g.OnEnemyKilled(enemyType));
+        questSteps[currentStep].OnEnemyKilled(enemyType);
     }
 
     public void OnAreaEntered(int areaID)
     {
-        goals.ForEach(g => g.OnAreaEntered(areaID));
+        questSteps[currentStep].OnAreaEntered(areaID);
     }
 
     public void OnNpcConversation(string npcName)
     {
-        goals.ForEach(g => g.OnNpcConversation(npcName));
+        questSteps[currentStep].OnNpcConversation(npcName);
     }
 }

@@ -213,10 +213,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 985723971}
+  - component: {fileID: 985723972}
   - component: {fileID: 985723970}
   - component: {fileID: 985723969}
   m_Layer: 0
-  m_Name: Kill Quest Giver
+  m_Name: Quest Giver
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -231,11 +232,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 985723968}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ac52a61a5e70804fbcf538f29268864, type: 3}
+  m_Script: {fileID: 11500000, guid: 0599c224dfcff7946b7b7c774805303c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _description: 
-  requiredNumberOfKills: 10
+  npcsName: Michael
 --- !u!114 &985723970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245,14 +246,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 985723968}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f31432359c3bcd498a551d006c20506, type: 3}
+  m_Script: {fileID: 11500000, guid: 6491d211b7631ae4e88875a323719dc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  quest:
-    title: KILL ENEMIES
-    description: Kill 10 Enemies
-    goals:
-    - {fileID: 985723969}
+  _description: 
+  areaID: 0
 --- !u!4 &985723971
 Transform:
   m_ObjectHideFlags: 0
@@ -267,6 +265,30 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &985723972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985723968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f31432359c3bcd498a551d006c20506, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  quest:
+    title: Lonely Traveler
+    description: Find the Lost Bay and talk with Michael
+    questSteps:
+    - title: Find the Lost Bay
+      description: 
+      goals:
+      - {fileID: 985723970}
+    - title: Talk with Michael
+      description: 
+      goals:
+      - {fileID: 985723969}
 --- !u!1 &1512725180
 GameObject:
   m_ObjectHideFlags: 0
@@ -311,7 +333,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aad2f07107f6d8a4bb396e0e5c11e3ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  giver: {fileID: 985723970}
+  giver: {fileID: 0}
 --- !u!114 &1512725183
 MonoBehaviour:
   m_ObjectHideFlags: 0

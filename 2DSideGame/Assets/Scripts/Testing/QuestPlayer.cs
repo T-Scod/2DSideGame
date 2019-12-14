@@ -23,5 +23,17 @@ public class QuestPlayer : MonoBehaviour
         {
             QuestManager.OnEnemyKilled(0);
         }
+        else if (Input.GetKeyDown(KeyCode.T))
+        {
+            QuestManager.OnNpcConversation("Michael");
+        }
+        else if (Input.GetKeyDown(KeyCode.E))
+        {
+            QuestManager.OnAreaEntered(0);
+        }
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            Debug.ClearDeveloperConsole();
+        }
     }
 }

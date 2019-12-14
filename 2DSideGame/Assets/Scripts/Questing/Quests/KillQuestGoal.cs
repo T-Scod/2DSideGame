@@ -4,7 +4,7 @@ using UnityEngine;
 
 [System.Serializable]
 [AddComponentMenu("Quests/Goals/KillQuestGoal")]
-public class KillQuestGoal : QuestGoal
+public sealed class KillQuestGoal : QuestGoal
 {
     [SerializeField]
     int requiredNumberOfKills;

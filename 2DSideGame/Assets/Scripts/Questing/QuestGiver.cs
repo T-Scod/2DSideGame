@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [AddComponentMenu("Quests/QuestGiver")]
-public class QuestGiver : MonoBehaviour
+public sealed class QuestGiver : MonoBehaviour
 {
     [SerializeField]
     Quest quest;
