@@ -79,8 +79,17 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
+        TileGenerator tileGen = GetComponent<TileGenerator>();
+        if (tileGen != null)
+        {
+            tileGen.GenerateMesh(borderedMap, 1);
+        }
+
         MeshGenerator meshGen = GetComponent<MeshGenerator>();
-        meshGen.GenerateMesh(borderedMap, 1);
+        if (meshGen != null)
+        {
+            meshGen.GenerateMesh(borderedMap, 1);
+        }
     }
 
     private void ProcessMap()
