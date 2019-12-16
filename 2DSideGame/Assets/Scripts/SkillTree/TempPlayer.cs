@@ -7,4 +7,5 @@ public class TempPlayer : MonoBehaviour
     public int damage;
     public int speed;
     public int cost;
+    public int gold = 20;
 }

@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: Damage Boost
   skillDescription: Boosts Damage by 10
+  skillType: Passive
   skillCost: 2
-  skillBox: DamageBoostBox
+  skillRequirement: Pay 20 Gold
+  skillBox: SkillBox
+  skillIcon: DamageBoost_Skill
   boostAmount: 10
