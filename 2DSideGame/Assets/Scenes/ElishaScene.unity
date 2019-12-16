@@ -1597,7 +1597,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 2
   m_Material: {fileID: 0}
   m_Interpolate: 1
   m_SleepingMode: 0
@@ -1701,27 +1701,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 983b83c440d08e540a1c50a7c25829e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_jumpAmounts: 2
-  m_movementSpeed: 3
-  m_jumpForce: 10
-  m_jumpPressedRememberTime: 0.2
-  m_fallMultiplier: 2.5
-  m_lowJumpMultiplier: 2
-  m_movementForceInAir: 10
-  m_airDragMulti: 0.95
-  m_wallHopForce: 10
-  m_wallJumpForce: 20
-  m_wallHopDir: {x: 1, y: 0.5}
-  m_wallJumpDir: {x: 1, y: 0.5}
-  m_groundCheckRadius: 0.3
-  m_groundedRememberTime: 0.2
-  m_groundCheck: {fileID: 1001451833}
-  m_whatIsGround:
-    serializedVersion: 2
-    m_Bits: 1
-  m_wallCheckDistance: 0.7
-  m_wallSlideSpeed: 2
-  m_wallCheck: {fileID: 777012606}
+  m_groundDetection:
+    m_groundCheckRadius: 0.38
+    m_groundedRememberTime: 0.2
+    m_groundCheck: {fileID: 1001451833}
+    m_whatIsGround:
+      serializedVersion: 2
+      m_Bits: 1
+    m_groundedRemember: 0
+    m_isGrounded: 0
+  m_health:
+    m_maxHealth: 100
+    healthState: 0
+  m_movement:
+    m_jumpAmounts: 2
+    m_movementSpeed: 5
+    m_jumpForce: 8
+    m_jumpPressedRememberTime: 0.2
+    m_fallMultiplier: 3
+    m_lowJumpMultiplier: 2
+    m_movementForceInAir: 5
+    m_airDragMulti: 0.95
+    m_wallHopForce: 10
+    m_wallJumpForce: 10
+    m_wallHopDir: {x: 1, y: 0.5}
+    m_wallJumpDir: {x: 1, y: 0.5}
+    m_wallCheckDistance: 0.6
+    m_wallSlideSpeed: 3
+    m_wallCheck: {fileID: 777012606}
+  m_rb: {fileID: 0}
 --- !u!1 &776849999
 GameObject:
   m_ObjectHideFlags: 0
