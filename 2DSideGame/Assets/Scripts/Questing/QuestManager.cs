@@ -54,7 +54,7 @@ public sealed class QuestManager : MonoBehaviour
         instance.quests.ForEach(q => q.OnDamageDealt(damageDealt, objectType));
     }
 
-    public static void OnEnemyKilled(int enemyType)
+    public static void OnEnemyKilled(Enemy.Type enemyType)
     {
         instance.quests.ForEach(q => q.OnEnemyKilled(enemyType));
     }

@@ -51,7 +51,7 @@ public sealed class QuestStep
         goals.ForEach(goal => goal.OnDamageDealt(damageDealt, objectType));
     }
 
-    public void OnEnemyKilled(int enemyType)
+    public void OnEnemyKilled(Enemy.Type enemyType)
     {
         goals.ForEach(goal => goal.OnEnemyKilled(enemyType));
     }

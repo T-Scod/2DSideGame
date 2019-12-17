@@ -21,7 +21,7 @@ public class QuestPlayer : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.K))
         {
-            QuestManager.OnEnemyKilled(0);
+            QuestManager.OnEnemyKilled(Enemy.Type.ANY);
         }
         else if (Input.GetKeyDown(KeyCode.T))
         {

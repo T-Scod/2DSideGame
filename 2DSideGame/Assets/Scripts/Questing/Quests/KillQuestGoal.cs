@@ -34,7 +34,7 @@ public sealed class KillQuestGoal : QuestGoal
         Debug.LogFormat("{0} / {1}", currentNumberOfKills, requiredNumberOfKills);
     }
 
-    public override void OnEnemyKilled(int enemyType)
+    public override void OnEnemyKilled(Enemy.Type enemyType)
     {
         currentNumberOfKills++;
     }

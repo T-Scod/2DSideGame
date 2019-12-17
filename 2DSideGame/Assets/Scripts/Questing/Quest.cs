@@ -28,7 +28,7 @@ public sealed class Quest
         if (questSteps[currentStep].complete)
             currentStep++;
 
-        if (complete = currentStep == questSteps.Length)
+        if (currentStep == questSteps.Length)
             OnComplete();
         else
             questSteps[currentStep].Evaluate();
@@ -47,6 +47,7 @@ public sealed class Quest
 
     void OnComplete()
     {
+        complete = true;
         Debug.Log("Quest Complete");
     }
 
@@ -60,7 +61,7 @@ public sealed class Quest
         questSteps[currentStep].OnDamageDealt(damageDealt, objectType);
     }
 
-    public void OnEnemyKilled(int enemyType)
+    public void OnEnemyKilled(Enemy.Type enemyType)
     {
         questSteps[currentStep].OnEnemyKilled(enemyType);
     }

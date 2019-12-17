@@ -24,7 +24,7 @@ public abstract class QuestGoal : MonoBehaviour
     {
     }
 
-    public virtual void OnEnemyKilled(int enemyType)
+    public virtual void OnEnemyKilled(Enemy.Type enemyType)
     {
     }
 
