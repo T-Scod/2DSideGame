@@ -27,12 +27,14 @@ public class PlayerHealth
     private int m_currentHealth;
     private PlayerController m_player;
 
-
-    // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
         m_currentHealth = m_maxHealth;
+    }
 
+    public void Update()
+    {
+        //PlayerState();
     }
 
     public void Init(PlayerController player)
@@ -40,7 +42,10 @@ public class PlayerHealth
         m_player = player;
     }
 
-    public void PlayerState()
+    /// <summary>
+    /// Handles what happens in each health state
+    /// </summary>
+    private void PlayerState()
     {
         switch (healthState)
         {
@@ -49,5 +54,27 @@ public class PlayerHealth
             case HealthState.DEAD:
                 break;
         }
+    }
+
+    /// <summary>
+    /// Player taking damage
+    /// </summary>
+    /// <param name="damage"></param>
+    private void TakeDamage(int damage)
+    {
+        m_currentHealth -= damage;
+
+        if (m_currentHealth <= 0)
+        {
+            IsDead();
+        }
+    }
+
+    /// <summary>
+    /// Player dead state
+    /// </summary>
+    private void IsDead()
+    {
+        healthState = HealthState.DEAD;
     }
 }

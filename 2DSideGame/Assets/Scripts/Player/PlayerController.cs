@@ -15,9 +15,10 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         m_health.Init(this);
-        m_groundDetection.Init(this);
         m_movement.Init(this);
+        m_groundDetection.Init(this);
 
+        m_health.Start();
         m_movement.Start();
 
         m_rb = GetComponent<Rigidbody2D>();
@@ -26,6 +27,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        m_health.Update();
         m_movement.Update();
         m_groundDetection.Update();
     }

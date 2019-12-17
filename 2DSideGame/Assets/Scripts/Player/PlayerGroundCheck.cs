@@ -9,7 +9,9 @@ public class PlayerGroundCheck
     [Tooltip("The radius of the ground detection trigger")]
     public float m_groundCheckRadius;
     [Tooltip("The time gap the player has to then jump again even if the player doesnt touch the ground")]
-    public float m_groundedRememberTime = 0.2f;
+    [SerializeField]
+    private float m_groundedRememberTime = 0.2f;
+
     [Tooltip("The transform that is attached to the player for the ground detection")]
     public Transform m_groundCheck;
     [Tooltip("The ground layer mask that the player can walk on")]

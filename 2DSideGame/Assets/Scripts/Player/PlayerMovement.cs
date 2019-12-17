@@ -30,6 +30,21 @@ public class PlayerMovement
     [Tooltip("The direction the player goes to when they jump off a wall")]
     public Vector2 m_wallJumpDir;
 
+    [Header("--DASH--")]
+    [SerializeField]
+    [Tooltip("How long the dash should take")]
+    private float m_dashTime;
+    [SerializeField]
+    [Tooltip("How fast the player will dash")]
+    private float m_dashSpeed;
+    [SerializeField]
+    [Tooltip("How far apart the ghost will be placed when dashing")]
+    private float m_distanceBetweenGhost;
+    [SerializeField]
+    [Tooltip("How long we wait before we can dash again ")]
+    private float m_dashCooldown;
+
+
     [Header("--WALL CHECK--")]
     [Tooltip("The distance of the raycast that detects walls")]
     public float m_wallCheckDistance;
@@ -38,16 +53,20 @@ public class PlayerMovement
     [Tooltip("The wall transform that is attached to the player that will be drawn as a gizmo")]
     public Transform m_wallCheck;
 
+    private PlayerController m_player;
     private int m_amountOfJumpsLeft;
+    private int m_facingDir = 1;
     private float m_jumpPressedRemember = 0;
     private float m_movementInputDir;
-    private int m_facingDir = 1; // -1 < // 1 >
+    private float m_dashTimeLeft; // tracks how much longer the dash should be happening
+    private float m_lastGhostXPos; // tracks the x position of the last ghost
+    private float m_lastDash = -100; // tracks the last dash which is used to check for the cooldown
     private bool m_isFacingRight = true;
-    private PlayerController m_player;
     private bool m_canJump = false;
     private bool m_isWalking;
     private bool m_isTouchingWall;
     private bool m_isWallSliding;
+    private bool m_isDashing = false; // is player currently dashing?
 
     // Start is called before the first frame update
     public void Start()
@@ -67,6 +86,7 @@ public class PlayerMovement
         CheckIfCanJump();
         CheckIfWallSliding();
         JumpJuice();
+        CheckDash();
     }
 
     public void FixedUpdate()
@@ -94,6 +114,46 @@ public class PlayerMovement
     public void CheckInput()
     {
         m_movementInputDir = Input.GetAxisRaw("Horizontal");
+
+        if (Input.GetButtonDown("Dash"))
+        {
+            if (Time.time >= (m_lastDash + m_dashCooldown))
+            {
+                Dash();
+            }
+        }
+    }
+
+    private void Dash()
+    {
+        m_isDashing = true;
+        m_dashTimeLeft = m_dashTime;
+        m_lastDash = Time.time;
+        ObjectPooling.Instance.GetFromPool();
+        m_lastGhostXPos = m_player.transform.position.x;
+    }
+
+    private void CheckDash()
+    {
+        if (m_isDashing)
+        {
+            if (m_dashTimeLeft > 0)
+            {
+                m_player.m_rb.velocity = new Vector2(m_dashSpeed * m_facingDir, m_player.m_rb.velocity.y);
+                m_dashTimeLeft -= Time.deltaTime;
+
+                if (Mathf.Abs(m_player.transform.position.x - m_lastGhostXPos) > m_distanceBetweenGhost)
+                {
+                    ObjectPooling.Instance.GetFromPool();
+                    m_lastGhostXPos = m_player.transform.position.x;
+                }
+            }
+
+            if (m_dashTimeLeft <= 0 || m_isTouchingWall)
+            {
+                m_isDashing = false;
+            }
+        }
     }
 
     public void CheckMovementDirection()
