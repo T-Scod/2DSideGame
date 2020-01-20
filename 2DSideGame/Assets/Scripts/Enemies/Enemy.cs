@@ -26,16 +26,12 @@ public sealed class Enemy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Type a = Type.MELEE;
-        Type b = Type.RANGE;
-
-        Debug.Log(TypeEquals(a, b));
-        Debug.Log(TypeEquals(a, Type.ANY));
+        stateMachine.Init(this);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        stateMachine.Update();
     }
 }

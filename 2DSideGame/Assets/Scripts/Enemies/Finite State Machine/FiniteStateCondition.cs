@@ -2,8 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public abstract class FiniteStateCondition
+public abstract class FiniteStateCondition : MonoBehaviour
 {
-    public abstract bool IsMet();
+    public bool not;
+    protected abstract bool CheckCondition();
+    public bool IsMet()
+    {
+        bool r = CheckCondition();
+        return not ? !r : r;
+    }
 }

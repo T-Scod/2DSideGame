@@ -16,12 +16,16 @@ public sealed class FiniteStateMachine
     public void Init(Enemy enemy)
     {
         this.enemy = enemy;
-        currentState.SetStateMachine(this);
+        
+        foreach (var state in states)
+        {
+            state.SetStateMachine(this);
+        }
     }
 
     public void Update()
     {
         currentState.Execute();
-        FiniteState.TransitionState(currentState);
+        currentState = FiniteState.TransitionState(currentState);
     }
 }

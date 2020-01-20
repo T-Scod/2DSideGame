@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public abstract class FiniteState : MonoBehaviour
 {
     [SerializeField]
@@ -38,15 +39,15 @@ public abstract class FiniteState : MonoBehaviour
         enemy = stateMachine.enemy;
     }
 
-    public static void TransitionState(FiniteState state)
+    public static FiniteState TransitionState(FiniteState state)
     {
         foreach (var transition in state.transitions)
         {
             if (transition.conditionsMet)
             {
-                state = transition.state;
-                return;
+                return transition.state;
             }
         }
+        return state;
     }
 }
