@@ -26,6 +26,10 @@ public sealed class FiniteStateMachine
     public void Update()
     {
         currentState.Execute();
-        currentState = FiniteState.TransitionState(currentState);
+        FiniteState next = currentState.GetNextState();
+        if (next != null)
+        {
+            currentState = next;
+        }
     }
 }

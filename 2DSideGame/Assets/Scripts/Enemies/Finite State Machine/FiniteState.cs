@@ -39,15 +39,15 @@ public abstract class FiniteState : MonoBehaviour
         enemy = stateMachine.enemy;
     }
 
-    public static FiniteState TransitionState(FiniteState state)
+    public FiniteState GetNextState()
     {
-        foreach (var transition in state.transitions)
+        foreach (var transition in transitions)
         {
             if (transition.conditionsMet)
             {
                 return transition.state;
             }
         }
-        return state;
+        return null;
     }
 }
