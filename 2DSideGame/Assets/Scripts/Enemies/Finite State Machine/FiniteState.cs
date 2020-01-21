@@ -11,6 +11,7 @@ public abstract class FiniteState : MonoBehaviour
 
     public FiniteStateMachine stateMachine { get; private set; }
     public Enemy enemy { get; private set; }
+    public bool complete { get; protected set; }
 
     public abstract void Execute();
     
@@ -30,6 +31,10 @@ public abstract class FiniteState : MonoBehaviour
     }
 
     protected virtual void OnUpdate()
+    {
+    }
+
+    public virtual void Startup()
     {
     }
 

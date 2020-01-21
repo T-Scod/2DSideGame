@@ -7,10 +7,11 @@ public class EnemyPath
 {
     [SerializeField]
     Vector3[] points;
+    public int numPoints { get => points.Length; }
 
-    public int GetRequiredIndex(Transform transform, int currentIndex, float threshold = 0.1f)
+    public int GetRequiredIndex(Vector3 position, int currentIndex, float threshold = 0.1f)
     {
-        float sqrDist = (points[currentIndex] - transform.position).sqrMagnitude;
+        float sqrDist = (points[currentIndex] - position).sqrMagnitude;
         if (sqrDist <= threshold)
             return (currentIndex + 1) % points.Length;
         else

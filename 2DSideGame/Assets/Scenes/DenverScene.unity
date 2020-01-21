@@ -442,6 +442,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
+  projectilePrefab: {fileID: 7875702628292695551, guid: 7979fdd53facac44fa1cd8f15c07306c,
+    type: 3}
 --- !u!1 &2012012290
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,11 +534,16 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2040052670}
+  - component: {fileID: 2040052675}
+  - component: {fileID: 2040052676}
   - component: {fileID: 2040052669}
   - component: {fileID: 2040052671}
   - component: {fileID: 2040052674}
+  - component: {fileID: 2040052679}
   - component: {fileID: 2040052673}
   - component: {fileID: 2040052672}
+  - component: {fileID: 2040052678}
+  - component: {fileID: 2040052677}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -561,6 +568,7 @@ MonoBehaviour:
     states:
     - {fileID: 2040052671}
     - {fileID: 2040052674}
+    - {fileID: 2040052679}
 --- !u!4 &2040052670
 Transform:
   m_ObjectHideFlags: 0
@@ -592,16 +600,18 @@ MonoBehaviour:
   - _state: {fileID: 2040052674}
     conditions:
     - {fileID: 2040052673}
+  - _state: {fileID: 2040052679}
+    conditions:
+    - {fileID: 2040052677}
   speed: 2
   currentSpeed: 0
   slowDownDistance: 1
-  slowDownMagnitude: 0.7
   currentPointIndex: 2
   path:
     points:
     - {x: -5, y: 0, z: 0}
     - {x: 5, y: 0, z: 0}
-    - {x: 0, y: 2, z: 0}
+    - {x: 0, y: 2.5, z: 0}
 --- !u!114 &2040052672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -615,7 +625,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   not: 1
-  playerTransform: {fileID: 1512725181}
+  targetTransform: {fileID: 1512725181}
   distance: 3
 --- !u!114 &2040052673
 MonoBehaviour:
@@ -630,7 +640,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   not: 0
-  playerTransform: {fileID: 1512725181}
+  targetTransform: {fileID: 1512725181}
   distance: 3
 --- !u!114 &2040052674
 MonoBehaviour:
@@ -649,4 +659,89 @@ MonoBehaviour:
     conditions:
     - {fileID: 2040052672}
   speed: 2
-  playerTransform: {fileID: 1512725181}
+  targetTransform: {fileID: 1512725181}
+--- !u!58 &2040052675
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040052668}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.5
+--- !u!50 &2040052676
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040052668}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &2040052677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040052668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46e94a218e6b9ee44be05c6a62d53591, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  not: 0
+  parentCollider: {fileID: 2040052675}
+  distance: 0
+--- !u!114 &2040052678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040052668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85eb9fd64e86ba14c99a1a6e64dd5d6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  not: 0
+  state: {fileID: 2040052679}
+--- !u!114 &2040052679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040052668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc44d2aa1a5d62b40a96f0ac9d897bae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _transitions:
+  - _state: {fileID: 2040052671}
+    conditions:
+    - {fileID: 2040052678}
+  dodgeSpeed: 10
+  dodgeAcceleration: 1
+  dodgeDistance: 3

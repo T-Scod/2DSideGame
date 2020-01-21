@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class FiniteStateConditionPlayerProximity : FiniteStateCondition
 {
-    public Transform playerTransform;
+    public Transform targetTransform;
     public float distance;
 
     protected override bool CheckCondition()
     {
-        float sqrDist = (playerTransform.position - transform.position).sqrMagnitude;
+        float sqrDist = (targetTransform.position - transform.position).sqrMagnitude;
         return sqrDist <= distance * distance;
     }
 }

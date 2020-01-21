@@ -8,7 +8,6 @@ public class FiniteStatePatrol : FiniteState
     public float speed;
     public float currentSpeed;
     public float slowDownDistance = 1f;
-    public float slowDownMagnitude = 1f;
 
     [Header("Pathing")]
     public int currentPointIndex;
@@ -17,7 +16,7 @@ public class FiniteStatePatrol : FiniteState
     public override void Execute()
     { 
         // calculate direction
-        currentPointIndex = path.GetRequiredIndex(enemy.transform, currentPointIndex);
+        currentPointIndex = path.GetRequiredIndex(enemy.transform.position, currentPointIndex);
         Vector3 target = path.GetPoint(currentPointIndex);
         Vector3 current = enemy.transform.position;
         Vector3 direction = target - current;
@@ -28,12 +27,30 @@ public class FiniteStatePatrol : FiniteState
         currentSpeed = speed;
         if (sqrDist <= slowDownDistance * slowDownDistance)
         {
-            float percentageTravelled = Mathf.InverseLerp(slowDownDistance * slowDownDistance, 0f, sqrDist);
-            float slowDown = percentageTravelled * slowDownMagnitude;
-            currentSpeed = speed - (speed * slowDown);
+            float dist = Mathf.Sqrt(sqrDist);
+            currentSpeed = (speed * (dist / slowDownDistance) * direction).magnitude;
         }
 
         // move enemy
         enemy.transform.position = current + direction * currentSpeed * Time.deltaTime;
+    }
+
+    //
+    // @Summary: Sets currentPointIndex to the closest point on the path
+    //
+    public override void Startup()
+    {
+        int closest = int.MaxValue;
+        float closestSqrDistance = float.PositiveInfinity;
+        for (int i = 0; i < path.numPoints; i++)
+        {
+            float sqrDist = (path.GetPoint(i) - enemy.transform.position).sqrMagnitude;
+            if (sqrDist < closestSqrDistance)
+            {
+                closest = i;
+                closestSqrDistance = sqrDist;
+            }
+        }
+        currentPointIndex = closest;
     }
 }

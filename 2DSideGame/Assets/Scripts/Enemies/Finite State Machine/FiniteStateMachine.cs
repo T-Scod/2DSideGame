@@ -30,6 +30,7 @@ public sealed class FiniteStateMachine
         if (next != null)
         {
             currentState = next;
+            currentState.Startup();
         }
     }
 }
