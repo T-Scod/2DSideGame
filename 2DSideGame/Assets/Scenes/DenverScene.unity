@@ -742,6 +742,6 @@ MonoBehaviour:
   - _state: {fileID: 2040052671}
     conditions:
     - {fileID: 2040052678}
-  dodgeSpeed: 10
-  dodgeAcceleration: 1
-  dodgeDistance: 3
+  dodgeSpeed: 3
+  dodgeDistance: 2
+  detectionRange: 3

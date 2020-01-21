@@ -18,6 +18,7 @@ public abstract class FiniteState : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        OnStart();
     }
 
     protected virtual void OnStart()
@@ -27,7 +28,7 @@ public abstract class FiniteState : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        OnUpdate();
     }
 
     protected virtual void OnUpdate()

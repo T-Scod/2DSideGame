@@ -20,8 +20,7 @@ public class TestPlayerProjectile : MonoBehaviour
 
         Transform child = transform.GetChild(0);
         float angle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
-        angle += child.transform.eulerAngles.z;
-        angle += 180;
+        angle -= child.transform.eulerAngles.z;
         child.transform.rotation = Quaternion.AngleAxis(angle, Vector3.back);
     }
 

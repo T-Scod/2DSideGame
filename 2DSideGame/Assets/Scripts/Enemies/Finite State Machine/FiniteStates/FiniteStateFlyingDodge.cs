@@ -2,59 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// @Implement: Implement collision avoidance steering behaviour
-    /*  private function collisionAvoidance() :Vector3D {
-            ahead = ...; // calculate the ahead vector
-            ahead2 = ...; // calculate the ahead2 vector
-            var mostThreatening :Obstacle = findMostThreateningObstacle();
-            var avoidance :Vector3D = new Vector3D(0, 0, 0);
-            if (mostThreatening != null) {
-                avoidance.x = ahead.x - mostThreatening.center.x;
-                avoidance.y = ahead.y - mostThreatening.center.y;
- 
-                avoidance.normalize();
-                avoidance.scaleBy(MAX_AVOID_FORCE);
-            } else {
-                avoidance.scaleBy(0); // nullify the avoidance force
-            }
-            return avoidance;
-        }
-        private function findMostThreateningObstacle() :Obstacle {
-            var mostThreatening :Obstacle = null;
-            for (var i:int = 0; i < Game.instance.obstacles.length; i++) {
-                var obstacle :Obstacle = Game.instance.obstacles[i];
-                var collision :Boolean = lineIntersecsCircle(ahead, ahead2, obstacle);
-                // "position" is the character's current position
-                if (collision && (mostThreatening == null || distance(position, obstacle) < distance(position, mostThreatening))) {
-                    mostThreatening = obstacle;
-                }
-            }
-            return mostThreatening;
-        }
-    */
-
 public class FiniteStateFlyingDodge : FiniteState
 {
     public float dodgeSpeed;
-    public float dodgeAcceleration;
     public float dodgeDistance;
+    public float detectionRange;
 
-    private Vector3 direction;
-    private Vector3 startPosition;
-    private float sqrDistance;
-    private Vector3 velocity;
+    private Vector3 endPosition;
+
+    private int callCounter = 0;
 
     public override void Execute()
     {
-        // calculate velocity
-        velocity += direction * dodgeAcceleration;
-        velocity = Vector3.ClampMagnitude(velocity, dodgeSpeed);
-
-        enemy.transform.Translate(velocity * Time.deltaTime);
-
-        // complete state if dodge is done
-        float currentSqrDistance = (enemy.transform.position - startPosition).sqrMagnitude;
-        if (currentSqrDistance >= sqrDistance)
+        enemy.transform.position = Vector3.Lerp(enemy.transform.position, endPosition, dodgeSpeed * Time.deltaTime);
+        float sqrDist = (enemy.transform.position - endPosition).sqrMagnitude;
+        if (sqrDist <= 0.1f)
         {
             complete = true;
         }
@@ -65,6 +27,9 @@ public class FiniteStateFlyingDodge : FiniteState
     //
     public override void Startup()
     {
+        callCounter++;
+        Debug.Log(callCounter);
+
         // get potential threats
         TestPlayerProjectile[] potentialThreats = FindObjectsOfType<TestPlayerProjectile>();
         List<Vector3> avasionVectors = new List<Vector3>();
@@ -74,24 +39,26 @@ public class FiniteStateFlyingDodge : FiniteState
         {
             RaycastHit2D hit = Physics2D.Raycast(threat.transform.position + threat.direction * 2f, threat.direction);
             bool collides = hit.collider == enemy.collider;
-            bool withinDistance = hit.distance <= dodgeDistance;
+            bool withinDistance = hit.distance <= detectionRange;
 
             if (collides && withinDistance)
             {
-                Vector3 desiredDodgeDirection = (enemy.transform.position - (Vector3)hit.point).normalized;
-                avasionVectors.Add(desiredDodgeDirection);
+                Vector3 desiredDodgeDirection = enemy.transform.position - (Vector3)hit.point;
+                desiredDodgeDirection.z = 0f;
+                desiredDodgeDirection.Normalize();
+                avasionVectors.Add(Vector2.Perpendicular(desiredDodgeDirection));
             }
         }
 
         // calculate average
+        Vector3 direction = new Vector3(0f, 0f, 0f);
         foreach (var vector in avasionVectors)
         {
             direction += vector;
         }
-        direction /= avasionVectors.Count;
+        direction.z = 0f;
+        direction.Normalize();
 
-        // setup dodge
-        startPosition = enemy.transform.position;
-        sqrDistance = direction.sqrMagnitude * dodgeSpeed;
+        endPosition = enemy.transform.position + direction * dodgeDistance;
     }
 }
