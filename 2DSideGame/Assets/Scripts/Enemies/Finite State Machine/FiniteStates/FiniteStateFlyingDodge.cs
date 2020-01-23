@@ -21,13 +21,18 @@ public class FiniteStateFlyingDodge : FiniteState
     }
 
     //
+    // @Summary: Resets state for next time state is transitioned to
+    //
+    public override void Shutdown()
+    {
+        complete = false;
+    }
+
+    //
     // @Summary: Calculates position enemy needs to move to for successfuly dodge
     //
     public override void Startup()
     {
-        // reset state
-        complete = false;
-
         // get potential threats
         Collider2D[] potentialThreats = Physics2D.OverlapCircleAll(enemy.transform.position, detectionRange);
         Vector3 direction = new Vector3(0f, 0f, 0f);

@@ -29,6 +29,7 @@ public sealed class FiniteStateMachine
         FiniteState next = currentState.GetNextState();
         if (next != null)
         {
+            currentState.Shutdown();
             currentState = next;
             currentState.Startup();
         }
