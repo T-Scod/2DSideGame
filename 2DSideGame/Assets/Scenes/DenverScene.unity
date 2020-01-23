@@ -713,7 +713,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   not: 0
   parentTransform: {fileID: 2040052670}
-  distance: 3
+  distance: 1.5
 --- !u!114 &2040052678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -746,7 +746,7 @@ MonoBehaviour:
     - {fileID: 2040052678}
   dodgeSpeed: 3
   dodgeDistance: 2
-  detectionRange: 3
+  detectionRange: 1.5
 --- !u!114 &2040052680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -777,4 +777,4 @@ MonoBehaviour:
   - _state: {fileID: 2040052671}
     conditions:
     - {fileID: 2040052680}
-  waitDuration: 1
+  waitDuration: 0.6

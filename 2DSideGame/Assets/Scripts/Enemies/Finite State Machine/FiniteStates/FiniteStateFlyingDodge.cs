@@ -25,37 +25,6 @@ public class FiniteStateFlyingDodge : FiniteState
     //
     public override void Startup()
     {
-        //// get potential threats
-        //TestPlayerProjectile[] potentialThreats = FindObjectsOfType<TestPlayerProjectile>();
-        //List<Vector3> avasionVectors = new List<Vector3>();
-
-        //// calculate avasion vectors for all threats
-        //foreach (var threat in potentialThreats)
-        //{
-        //    RaycastHit2D hit = Physics2D.Raycast(threat.transform.position + threat.direction * 2f, threat.direction);
-        //    bool collides = hit.collider == enemy.collider;
-        //    bool withinDistance = hit.distance <= detectionRange;
-
-        //    if (collides && withinDistance)
-        //    {
-        //        Vector3 desiredDodgeDirection = enemy.transform.position - (Vector3)hit.point;
-        //        desiredDodgeDirection.z = 0f;
-        //        desiredDodgeDirection.Normalize();
-        //        avasionVectors.Add(Vector2.Perpendicular(desiredDodgeDirection));
-        //    }
-        //}
-
-        //// calculate average
-        //Vector3 direction = new Vector3(0f, 0f, 0f);
-        //foreach (var vector in avasionVectors)
-        //{
-        //    direction += vector;
-        //}
-        //direction.z = 0f;
-        //direction.Normalize();
-
-        //endPosition = enemy.transform.position + direction * dodgeDistance;
-
         // reset state
         complete = false;
 
@@ -65,11 +34,27 @@ public class FiniteStateFlyingDodge : FiniteState
 
         foreach (var threat in potentialThreats)
         {
-            Vector3 desiredDodgeDirection = enemy.transform.position - (Vector3)threat.ClosestPoint(enemy.transform.position);
-            desiredDodgeDirection.z = 0f;
-            desiredDodgeDirection.Normalize();
-            desiredDodgeDirection = Vector2.Perpendicular(desiredDodgeDirection);
-            avasionDirs.Add(desiredDodgeDirection);
+            TestPlayerProjectile projectile = threat.GetComponent<TestPlayerProjectile>();
+            if (projectile != null)
+            {
+                Vector3 desiredDodgeDirection = enemy.transform.position - projectile.transform.position;
+                desiredDodgeDirection.z = 0f;
+                desiredDodgeDirection.Normalize();
+                desiredDodgeDirection = Vector2.Perpendicular(desiredDodgeDirection);
+
+                // flip direction depending on projectile's future position relative to the enemy
+                Vector3 projFuturePosition = projectile.transform.position + projectile.velocity * Time.deltaTime;
+                // change y direction
+                if (desiredDodgeDirection.y > 0 && projFuturePosition.y > enemy.transform.position.y ||
+                    desiredDodgeDirection.y < 0 && projFuturePosition.y < enemy.transform.position.y)
+                    desiredDodgeDirection.y = -desiredDodgeDirection.y;
+                // change x direction
+                if (desiredDodgeDirection.x > 0 && projFuturePosition.x > enemy.transform.position.x ||
+                    desiredDodgeDirection.x < 0 && projFuturePosition.x < enemy.transform.position.x)
+                    desiredDodgeDirection.x = -desiredDodgeDirection.x;
+
+                avasionDirs.Add(desiredDodgeDirection);
+            }
         }
 
         // calculate average

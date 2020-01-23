@@ -8,9 +8,16 @@ public class TestPlayerProjectile : MonoBehaviour
     public Vector3 velocity;
     public Vector3 direction { get => velocity.normalized; }
 
+    private float lifetimeTimer;
+
     private void Update()
     {
         transform.Translate(velocity * Time.deltaTime);
+
+        lifetimeTimer += Time.deltaTime;
+
+        if (lifetimeTimer >= 10f)
+            Destroy(gameObject);
     }
 
     public void Fire(Vector3 direction)
