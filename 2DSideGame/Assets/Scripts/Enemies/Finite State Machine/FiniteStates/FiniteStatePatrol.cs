@@ -28,7 +28,7 @@ public class FiniteStatePatrol : FiniteState
         if (sqrDist <= slowDownDistance * slowDownDistance)
         {
             float dist = Mathf.Sqrt(sqrDist);
-            currentSpeed = (speed * (dist / slowDownDistance) * direction).magnitude;
+            currentSpeed = speed * (dist / slowDownDistance);
         }
 
         // move enemy

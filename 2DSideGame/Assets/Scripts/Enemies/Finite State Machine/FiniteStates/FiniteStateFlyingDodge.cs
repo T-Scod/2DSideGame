@@ -30,41 +30,32 @@ public class FiniteStateFlyingDodge : FiniteState
 
         // get potential threats
         Collider2D[] potentialThreats = Physics2D.OverlapCircleAll(enemy.transform.position, detectionRange);
-        List<Vector3> avasionDirs = new List<Vector3>();
+        Vector3 direction = new Vector3(0f, 0f, 0f);
 
         foreach (var threat in potentialThreats)
         {
             TestPlayerProjectile projectile = threat.GetComponent<TestPlayerProjectile>();
             if (projectile != null)
             {
-                Vector3 desiredDodgeDirection = enemy.transform.position - projectile.transform.position;
-                desiredDodgeDirection.z = 0f;
-                desiredDodgeDirection.Normalize();
-                desiredDodgeDirection = Vector2.Perpendicular(desiredDodgeDirection);
+                // calculate desired direction to avoid the threat
+                direction = enemy.transform.position - projectile.transform.position;
+                direction.z = 0f;
+                direction.Normalize();
+                direction = Vector2.Perpendicular(direction);
 
                 // flip direction depending on projectile's future position relative to the enemy
                 Vector3 projFuturePosition = projectile.transform.position + projectile.velocity * Time.deltaTime;
                 // change y direction
-                if (desiredDodgeDirection.y > 0 && projFuturePosition.y > enemy.transform.position.y ||
-                    desiredDodgeDirection.y < 0 && projFuturePosition.y < enemy.transform.position.y)
-                    desiredDodgeDirection.y = -desiredDodgeDirection.y;
+                if (direction.y > 0 && projFuturePosition.y > enemy.transform.position.y ||
+                    direction.y < 0 && projFuturePosition.y < enemy.transform.position.y)
+                    direction.y = -direction.y;
                 // change x direction
-                if (desiredDodgeDirection.x > 0 && projFuturePosition.x > enemy.transform.position.x ||
-                    desiredDodgeDirection.x < 0 && projFuturePosition.x < enemy.transform.position.x)
-                    desiredDodgeDirection.x = -desiredDodgeDirection.x;
-
-                avasionDirs.Add(desiredDodgeDirection);
+                if (direction.x > 0 && projFuturePosition.x > enemy.transform.position.x ||
+                    direction.x < 0 && projFuturePosition.x < enemy.transform.position.x)
+                    direction.x = -direction.x;
+                break;
             }
         }
-
-        // calculate average
-        Vector3 direction = new Vector3(0f, 0f, 0f);
-        foreach (var dir in avasionDirs)
-        {
-            direction += dir;
-        }
-        direction.z = 0f;
-        direction.Normalize();
 
         endPosition = enemy.transform.position + direction * dodgeDistance;
     }
