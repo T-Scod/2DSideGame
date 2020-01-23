@@ -10,8 +10,6 @@ public class FiniteStateFlyingDodge : FiniteState
 
     private Vector3 endPosition;
 
-    private int callCounter = 0;
-
     public override void Execute()
     {
         enemy.transform.position = Vector3.Lerp(enemy.transform.position, endPosition, dodgeSpeed * Time.deltaTime);
@@ -27,34 +25,58 @@ public class FiniteStateFlyingDodge : FiniteState
     //
     public override void Startup()
     {
-        callCounter++;
-        Debug.Log(callCounter);
+        //// get potential threats
+        //TestPlayerProjectile[] potentialThreats = FindObjectsOfType<TestPlayerProjectile>();
+        //List<Vector3> avasionVectors = new List<Vector3>();
+
+        //// calculate avasion vectors for all threats
+        //foreach (var threat in potentialThreats)
+        //{
+        //    RaycastHit2D hit = Physics2D.Raycast(threat.transform.position + threat.direction * 2f, threat.direction);
+        //    bool collides = hit.collider == enemy.collider;
+        //    bool withinDistance = hit.distance <= detectionRange;
+
+        //    if (collides && withinDistance)
+        //    {
+        //        Vector3 desiredDodgeDirection = enemy.transform.position - (Vector3)hit.point;
+        //        desiredDodgeDirection.z = 0f;
+        //        desiredDodgeDirection.Normalize();
+        //        avasionVectors.Add(Vector2.Perpendicular(desiredDodgeDirection));
+        //    }
+        //}
+
+        //// calculate average
+        //Vector3 direction = new Vector3(0f, 0f, 0f);
+        //foreach (var vector in avasionVectors)
+        //{
+        //    direction += vector;
+        //}
+        //direction.z = 0f;
+        //direction.Normalize();
+
+        //endPosition = enemy.transform.position + direction * dodgeDistance;
+
+        // reset state
+        complete = false;
 
         // get potential threats
-        TestPlayerProjectile[] potentialThreats = FindObjectsOfType<TestPlayerProjectile>();
-        List<Vector3> avasionVectors = new List<Vector3>();
+        Collider2D[] potentialThreats = Physics2D.OverlapCircleAll(enemy.transform.position, detectionRange);
+        List<Vector3> avasionDirs = new List<Vector3>();
 
-        // calculate avasion vectors for all threats
         foreach (var threat in potentialThreats)
         {
-            RaycastHit2D hit = Physics2D.Raycast(threat.transform.position + threat.direction * 2f, threat.direction);
-            bool collides = hit.collider == enemy.collider;
-            bool withinDistance = hit.distance <= detectionRange;
-
-            if (collides && withinDistance)
-            {
-                Vector3 desiredDodgeDirection = enemy.transform.position - (Vector3)hit.point;
-                desiredDodgeDirection.z = 0f;
-                desiredDodgeDirection.Normalize();
-                avasionVectors.Add(Vector2.Perpendicular(desiredDodgeDirection));
-            }
+            Vector3 desiredDodgeDirection = enemy.transform.position - (Vector3)threat.ClosestPoint(enemy.transform.position);
+            desiredDodgeDirection.z = 0f;
+            desiredDodgeDirection.Normalize();
+            desiredDodgeDirection = Vector2.Perpendicular(desiredDodgeDirection);
+            avasionDirs.Add(desiredDodgeDirection);
         }
 
         // calculate average
         Vector3 direction = new Vector3(0f, 0f, 0f);
-        foreach (var vector in avasionVectors)
+        foreach (var dir in avasionDirs)
         {
-            direction += vector;
+            direction += dir;
         }
         direction.z = 0f;
         direction.Normalize();
