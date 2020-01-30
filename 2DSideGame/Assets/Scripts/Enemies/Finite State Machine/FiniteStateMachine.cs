@@ -2,36 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public sealed class FiniteStateMachine
+namespace FSM
 {
-    [SerializeField]
-    FiniteState currentState;
-
-    [SerializeField]
-    FiniteState[] states;
-
-    public Enemy enemy { get; private set; }
-
-    public void Init(Enemy enemy)
+    [System.Serializable]
+    public sealed class FiniteStateMachine
     {
-        this.enemy = enemy;
-        
-        foreach (var state in states)
+        [SerializeField]
+        FiniteState currentState;
+
+        [SerializeField]
+        FiniteState[] states;
+
+        public Enemy enemy { get; private set; }
+
+        public void Init(Enemy enemy)
         {
-            state.SetStateMachine(this);
+            this.enemy = enemy;
+
+            foreach (var state in states)
+            {
+                state.SetStateMachine(this);
+            }
         }
-    }
 
-    public void Update()
-    {
-        currentState.Execute();
-        FiniteState next = currentState.GetNextState();
-        if (next != null)
+        public void Update()
         {
-            currentState.Shutdown();
-            currentState = next;
-            currentState.Startup();
+            currentState.Execute();
+            FiniteState next = currentState.GetNextState();
+            if (next != null)
+            {
+                currentState.Shutdown();
+                currentState = next;
+                currentState.Startup();
+            }
         }
     }
 }

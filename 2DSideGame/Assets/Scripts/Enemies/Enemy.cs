@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FSM;
 
 [RequireComponent(typeof(Collider2D))]
 public sealed class Enemy : MonoBehaviour
