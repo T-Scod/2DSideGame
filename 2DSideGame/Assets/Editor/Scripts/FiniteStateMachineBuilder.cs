@@ -14,6 +14,7 @@ public class FiniteStateMachineBuilder : EditorWindow
     bool makingTransition = false;
     int currentWindowID = 0;
     Vector2 mousePosition;
+    Vector2 scrollPosition;
 
     //
     // @Summary: Creates a window if one isn't already open
@@ -32,7 +33,7 @@ public class FiniteStateMachineBuilder : EditorWindow
         GUILayout.BeginHorizontal(EditorStyles.toolbar);
         // button for setting target object
         EditorGUIUtility.labelWidth = 80;
-        targetObject = EditorGUILayout.ObjectField("Target Object", targetObject, typeof(GameObject), allowSceneObjects: true) as GameObject;
+        targetObject = EditorGUILayout.ObjectField("Target Object", targetObject, typeof(GameObject), allowSceneObjects: true, GUILayout.MinWidth(300)) as GameObject;
 
         if (GUILayout.Button("Build"))
         {
@@ -45,6 +46,10 @@ public class FiniteStateMachineBuilder : EditorWindow
         }
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
+
+        states.RemoveAll(s => s.id == -1);
+
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
         //
         // @Todo: Draw Transitions and Conditions
@@ -59,6 +64,8 @@ public class FiniteStateMachineBuilder : EditorWindow
         }
         EndWindows();
         GUI.EndGroup();
+
+        EditorGUILayout.EndScrollView();
 
         // handle events
         Event e = Event.current;
@@ -191,11 +198,31 @@ public abstract class FSMBWindow : ScriptableObject
 {
     public Rect rect;
     public int id;
+    protected Vector2 scrollPosition;
 }
 
 public abstract class FSMBStateWindow : FSMBWindow
 {
-    public abstract void Draw();
+    public void Draw()
+    {
+        rect = GUI.Window(id, rect, WindowGUI, string.Format("{0}: {1}", GetName(), id));
+    }
+
+    public abstract string GetName();
+
+    //
+    // @Note: Make sure this is called at the end of overriding functions
+    //
+    protected virtual void WindowGUI(int id)
+    {
+        EditorGUIUtility.labelWidth = 40;
+        if (EditorGUILayout.Toggle("Delete", false))
+        {
+            this.id = -1;
+        }
+
+        GUI.DragWindow();
+    }
 }
 
 public class FSMBPatrolStateWindow : FSMBStateWindow
@@ -204,23 +231,29 @@ public class FSMBPatrolStateWindow : FSMBStateWindow
     public float slowDownDistance = 1f;
     public EnemyPath path;
 
-    public override void Draw()
+    public override string GetName()
     {
-        GUI.Window(id, rect, WindowGUI, string.Format("Patrol: {0}", id));
+        return "Patrol";
     }
 
-    private void WindowGUI(int id)
+    protected override void WindowGUI(int id)
     {
         var so = new SerializedObject(this);
         var speedProperty = so.FindProperty("speed");
         var slowDownDistanceProperty = so.FindProperty("slowDownDistance");
         var pathProperty = so.FindProperty("path");
 
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
         EditorGUILayout.PropertyField(speedProperty);
         EditorGUILayout.PropertyField(slowDownDistanceProperty);
         EditorGUILayout.PropertyField(pathProperty, includeChildren: true);
 
         so.ApplyModifiedProperties();
+
+        EditorGUILayout.EndScrollView();
+
+        base.WindowGUI(id);
     }
 }
 
@@ -229,21 +262,27 @@ public class FSMBSeekStateWindow : FSMBStateWindow
     public float speed;
     public Transform targetTransform;
 
-    public override void Draw()
+    public override string GetName()
     {
-        GUI.Window(id, rect, WindowGUI, string.Format("Seek: {0}", id));
+        return "Seek";
     }
 
-    private void WindowGUI(int id)
+    protected override void WindowGUI(int id)
     {
         var so = new SerializedObject(this);
         var speedProperty = so.FindProperty("speed");
         var targetTransformProperty = so.FindProperty("targetTransform");
 
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
         EditorGUILayout.PropertyField(speedProperty);
         EditorGUILayout.PropertyField(targetTransformProperty);
 
         so.ApplyModifiedProperties();
+
+        EditorGUILayout.EndScrollView();
+
+        base.WindowGUI(id);
     }
 }
 
@@ -253,23 +292,29 @@ public class FSMBFlyingDodgeStateWindow : FSMBStateWindow
     public float dodgeDistance;
     public float detectionRange;
 
-    public override void Draw()
+    public override string GetName()
     {
-        GUI.Window(id, rect, WindowGUI, string.Format("Flying Dodge: {0}", id));
+        return "Flying Dodge";
     }
 
-    private void WindowGUI(int id)
+    protected override void WindowGUI(int id)
     {
         var so = new SerializedObject(this);
         var dodgeSpeedProperty = so.FindProperty("dodgeSpeed");
         var dodgeDistanceProperty = so.FindProperty("dodgeDistance");
         var detectionRangeProperty = so.FindProperty("detectionRange");
 
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
         EditorGUILayout.PropertyField(dodgeSpeedProperty);
         EditorGUILayout.PropertyField(dodgeDistanceProperty);
         EditorGUILayout.PropertyField(detectionRangeProperty);
 
         so.ApplyModifiedProperties();
+
+        EditorGUILayout.EndScrollView();
+
+        base.WindowGUI(id);
     }
 }
 
@@ -277,19 +322,25 @@ public class FSMBWaitStateWindow : FSMBStateWindow
 {
     public float waitDuration;
 
-    public override void Draw()
+    public override string GetName()
     {
-        GUI.Window(id, rect, WindowGUI, string.Format("Wait: {0}", id));
+        return "Wait";
     }
 
-    private void WindowGUI(int id)
+    protected override void WindowGUI(int id)
     {
         var so = new SerializedObject(this);
         var waitDurationProperty = so.FindProperty("waitDuration");
 
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
         EditorGUILayout.PropertyField(waitDurationProperty);
 
         so.ApplyModifiedProperties();
+
+        EditorGUILayout.EndScrollView();
+
+        base.WindowGUI(id);
     }
 }
 
