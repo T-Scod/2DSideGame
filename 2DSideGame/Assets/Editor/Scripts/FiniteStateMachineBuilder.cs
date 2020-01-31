@@ -5,11 +5,25 @@ using UnityEditor;
 
 public class FiniteStateMachineBuilder : EditorWindow
 {
+    public static FiniteStateMachineBuilder instance;
+
+    FiniteStateMachineBuilder()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
+    }
+
     GameObject targetObject;
 
-    List<FSMBStateWindow> states = new List<FSMBStateWindow>();
-    List<FSMBTransitionWindow> transitions = new List<FSMBTransitionWindow>();
-    List<FSMBConditionWindow> conditions = new List<FSMBConditionWindow>();
+    public List<FSMBStateWindow> states = new List<FSMBStateWindow>();
+    public List<FSMBTransitionWindow> transitions = new List<FSMBTransitionWindow>();
+    public List<FSMBConditionWindow> conditions = new List<FSMBConditionWindow>();
 
     bool makingTransition = false;
     int currentWindowID = 0;
@@ -47,26 +61,6 @@ public class FiniteStateMachineBuilder : EditorWindow
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
-        states.RemoveAll(s => s.id == -1);
-
-        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-
-        //
-        // @Todo: Draw Transitions and Conditions
-        //
-
-        // draw states
-        GUI.BeginGroup(new Rect(0, 0, maxSize.x, maxSize.y));
-        BeginWindows();
-        foreach (var state in states)
-        {
-            state.Draw();
-        }
-        EndWindows();
-        GUI.EndGroup();
-
-        EditorGUILayout.EndScrollView();
-
         // handle events
         Event e = Event.current;
         mousePosition = e.mousePosition;
@@ -84,6 +78,9 @@ public class FiniteStateMachineBuilder : EditorWindow
                     menu.AddItem(new GUIContent("Add State/Flying Dodge"), false, StateWindowOfType<FSMBFlyingDodgeStateWindow>);
                     menu.AddItem(new GUIContent("Add State/Wait"), false, StateWindowOfType<FSMBWaitStateWindow>);
 
+                    // add transition windows
+                    menu.AddItem(new GUIContent("Add Transition"), false, TransitionWindow);
+
                     menu.DropDown(new Rect(e.mousePosition, new Vector2(0, 0)));
                 }
                 break;
@@ -91,6 +88,34 @@ public class FiniteStateMachineBuilder : EditorWindow
             default:
                 break;
         }
+
+        states.RemoveAll(s => s.id == -1);
+        transitions.RemoveAll(t => t.id == -1);
+        conditions.RemoveAll(c => c.id == -1);
+
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
+        //
+        // @Todo: Draw Transitions and Conditions
+        //
+
+        GUI.BeginGroup(new Rect(0, 0, maxSize.x, maxSize.y));
+        BeginWindows();
+        // draw transition windows
+        foreach (var transition in transitions)
+        {
+            transition.Draw();
+        }
+
+        // draw states
+        foreach (var state in states)
+        {
+            state.Draw();
+        }
+        EndWindows();
+        GUI.EndGroup();
+
+        EditorGUILayout.EndScrollView();
     }
 
     //
@@ -98,6 +123,11 @@ public class FiniteStateMachineBuilder : EditorWindow
     //
     private void BuildStateMachine()
     {
+        if (targetObject == null)
+        {
+            return;
+        }
+
         //
         // @Todo: Transitions and Conditions
         //      
@@ -188,9 +218,17 @@ public class FiniteStateMachineBuilder : EditorWindow
     private void StateWindowOfType<T>() where T : FSMBStateWindow
     {
         var state = CreateInstance<T>();
-        state.rect = new Rect(mousePosition, new Vector2(200, 200));
+        state.rect = new Rect(mousePosition.x, mousePosition.y, 200f, 200f);
         state.id = NextWindowID();
         states.Add(state);
+    }
+
+    private void TransitionWindow()
+    {
+        var transition = CreateInstance<FSMBTransitionWindow>();
+        transition.rect = new Rect(mousePosition.x, mousePosition.y, 200f, 200f);
+        transition.id = NextWindowID();
+        transitions.Add(transition);
     }
 }
 
@@ -199,13 +237,10 @@ public abstract class FSMBWindow : ScriptableObject
     public Rect rect;
     public int id;
     protected Vector2 scrollPosition;
-}
 
-public abstract class FSMBStateWindow : FSMBWindow
-{
     public void Draw()
     {
-        rect = GUI.Window(id, rect, WindowGUI, string.Format("{0}: {1}", GetName(), id));
+        rect = GUILayout.Window(id, rect, WindowGUI, string.Format("{0}: {1}", GetName(), id));
     }
 
     public abstract string GetName();
@@ -223,6 +258,10 @@ public abstract class FSMBStateWindow : FSMBWindow
 
         GUI.DragWindow();
     }
+}
+
+public abstract class FSMBStateWindow : FSMBWindow
+{
 }
 
 public class FSMBPatrolStateWindow : FSMBStateWindow
@@ -344,11 +383,68 @@ public class FSMBWaitStateWindow : FSMBStateWindow
     }
 }
 
-public abstract class FSMBTransitionWindow : FSMBWindow
+public class FSMBTransitionWindow : FSMBWindow
 {
-    public FSMBStateWindow fromState;
-    public FSMBStateWindow toState;
+    public int fromState;
+    public int toState;
     public List<FSMBConditionWindow> conditions;
+
+    public override string GetName()
+    {
+        return "Transition";
+    }
+
+    protected override void WindowGUI(int id)
+    {
+        var so = new SerializedObject(this);
+        var fromTargetProperty = so.FindProperty("fromState");
+        var toStateProperty = so.FindProperty("toState");
+        var conditionsProperty = so.FindProperty("conditions");
+
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
+        EditorGUILayout.PropertyField(fromTargetProperty);
+        EditorGUILayout.PropertyField(toStateProperty);
+        EditorGUILayout.PropertyField(conditionsProperty, includeChildren: true);
+
+        so.ApplyModifiedProperties();
+
+        EditorGUILayout.EndScrollView();
+
+        // connect from state and to state with line
+        Handles.BeginGUI();
+        {
+            FSMBStateWindow state = null;
+            foreach (var s in FiniteStateMachineBuilder.instance.states)
+            {
+                if (s.id == fromState)
+                {
+                    state = s;
+                }
+            }
+            if (state != null)
+            {
+                Handles.DrawLine(state.rect.center, rect.center);
+            }
+        }
+        {
+            FSMBStateWindow state = null;
+            foreach (var s in FiniteStateMachineBuilder.instance.states)
+            {
+                if (s.id == toState)
+                {
+                    state = s;
+                }
+            }
+            if (state != null)
+            {
+                Handles.DrawLine(state.rect.center, rect.center);
+            }
+            Handles.EndGUI();
+        }
+
+        base.WindowGUI(id);
+    }
 }
 
 public abstract class FSMBConditionWindow : FSMBWindow
