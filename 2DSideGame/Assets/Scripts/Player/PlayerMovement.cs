@@ -139,7 +139,7 @@ public class PlayerMovement
         {
             if (m_dashTimeLeft > 0)
             {
-                m_player.m_rb.velocity = new Vector2(m_dashSpeed * m_facingDir, m_player.m_rb.velocity.y);
+                m_player.m_rb.velocity = new Vector2(m_dashSpeed * m_facingDir, 0);
                 m_dashTimeLeft -= Time.deltaTime;
 
                 if (Mathf.Abs(m_player.transform.position.x - m_lastGhostXPos) > m_distanceBetweenGhost)
@@ -158,11 +158,11 @@ public class PlayerMovement
 
     public void CheckMovementDirection()
     {
-        if (m_isFacingRight && m_movementInputDir < 0)
+        if (m_isFacingRight && m_movementInputDir < 0 && !m_isDashing)
         {
             Flip();
         }
-        else if (!m_isFacingRight && m_movementInputDir > 0)
+        else if (!m_isFacingRight && m_movementInputDir > 0 && !m_isDashing)
         {
             Flip();
         }
