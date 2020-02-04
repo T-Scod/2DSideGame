@@ -82,9 +82,9 @@ public class DialogueManager : MonoBehaviour
         DialogueInformation.Info info = m_dialogueInfo.Dequeue();
   
         m_completeText = info.m_text;
-        m_nameText.text = info.m_name;
+        m_nameText.text = info.m_character.m_name;
         m_dialogueText.text = info.m_text;
-        m_dialoguePortrait.sprite = info.m_portrait;
+        m_dialoguePortrait.sprite = info.m_character.m_portrait;
 
         m_dialogueText.text = "";
         StartCoroutine(TypeSentence(info, m_textSpeed));
