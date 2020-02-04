@@ -46,13 +46,27 @@ public class DialogueManager : MonoBehaviour
     private string m_completeText; // this auto completes the text if the user decides to skip dialogue
 
     [SerializeField]
+    private Animator m_anim;
+
+    [SerializeField]
     private Queue<DialogueInformation.Info> m_dialogueInfo = new Queue<DialogueInformation.Info>();
 
+    /// <summary>
+    /// Invokes the dialogue box to turn off once it has moved off the screen.
+    /// </summary>
+    public void InvokeAnim()
+    {
+        Invoke("TurnOffDialogueBox", 3f);
+    }
 
-
+    /// <summary>
+    /// This function loads up the queue with lines of dialogue
+    /// </summary>
+    /// <param name="info"></param>
     public void EnqueueDialogue(DialogueInformation info)
     {
         m_dialogueBox.SetActive(true);
+        m_anim.SetBool("isOpen", true);
         m_dialogueInfo.Clear();
 
         foreach (DialogueInformation.Info diaInfo in info.m_dialogueInfo)
@@ -63,6 +77,9 @@ public class DialogueManager : MonoBehaviour
         DequeueDialogue();
     }
 
+    /// <summary>
+    /// Removes and returns the next dialogue in the queue.
+    /// </summary>
     public void DequeueDialogue()
     {
         if (isCurrentlyTyping)
@@ -90,12 +107,29 @@ public class DialogueManager : MonoBehaviour
         StartCoroutine(TypeSentence(info, m_textSpeed));
     }
 
+    /// <summary>
+    /// This ends the conversation and invokes the dialogue box to disappear after a certain amount of time.
+    /// </summary>
     public void EndDialogue()
+    {
+        m_anim.SetBool("isOpen", false);
+        InvokeAnim();
+    }
+
+    /// <summary>
+    /// Sets the dialogue box to false. This function gets called by the invoke function.
+    /// </summary>
+    public void TurnOffDialogueBox()
     {
         m_dialogueBox.SetActive(false);
     }
 
-
+    /// <summary>
+    /// Animates the dialogue to type out with a delay.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="textSpeed"></param>
+    /// <returns></returns>
     IEnumerator TypeSentence(DialogueInformation.Info info, float textSpeed)
     {
         isCurrentlyTyping = true;
@@ -107,6 +141,9 @@ public class DialogueManager : MonoBehaviour
         isCurrentlyTyping = false;
     }
 
+    /// <summary>
+    /// Auto completes the text if the player decides he wants to skip the dialogue.
+    /// </summary>
     private void CompleteText()
     {
         m_dialogueText.text = m_completeText;
