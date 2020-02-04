@@ -14,6 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogueInfo:
   - m_character: {fileID: 11400000, guid: 32269270dbd6a864e82c43ea0e8a9906, type: 2}
-    m_text: hey boy how are you going
-  - m_character: {fileID: 11400000, guid: c47b4cd0ae298d8469db12dce02654bd, type: 2}
-    m_text: its going good kratos
+    m_text: Boy get behind me!!
+  - m_character: {fileID: 11400000, guid: 4d33abcb811dc894ea7c132eac2e1315, type: 2}
+    m_text: Dont talk to my mother like that!!! AHHHH
+  - m_character: {fileID: 11400000, guid: b0a3f1bb682f21d4984fa8a6c5a8f527, type: 2}
+    m_text: Foolish little boy you are haha
+  - m_character: {fileID: 11400000, guid: 32269270dbd6a864e82c43ea0e8a9906, type: 2}
+    m_text: Atreus NOO!

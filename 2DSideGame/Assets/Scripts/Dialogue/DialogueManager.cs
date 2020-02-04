@@ -27,9 +27,9 @@ public class DialogueManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);    
     }
 
-    [Tooltip("Drag NPC name text to this slot")]
-    [SerializeField]
-    private TextMeshProUGUI m_nameText;
+    //[Tooltip("Drag NPC name text to this slot")]
+    //[SerializeField]
+    //private TextMeshProUGUI m_nameText;
 
     [Tooltip("Drag NPC dialogue text to this slot")]
     [SerializeField]
@@ -82,7 +82,7 @@ public class DialogueManager : MonoBehaviour
         DialogueInformation.Info info = m_dialogueInfo.Dequeue();
   
         m_completeText = info.m_text;
-        m_nameText.text = info.m_character.m_name;
+       // m_nameText.text = info.m_character.m_name;
         m_dialogueText.text = info.m_text;
         m_dialoguePortrait.sprite = info.m_character.m_portrait;
 

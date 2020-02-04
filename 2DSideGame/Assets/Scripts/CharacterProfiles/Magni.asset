@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5133edc086660d04396066bae9e79fe4, type: 3}
-  m_Name: Kratos
+  m_Name: Magni
   m_EditorClassIdentifier: 
-  m_portrait: {fileID: 21300000, guid: b2b3275361d5a8c4da22b647ebcae41e, type: 3}
+  m_portrait: {fileID: 21300000, guid: 4a84415615916c949996f2e2a4748fbf, type: 3}

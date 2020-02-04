@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d9b956cca21ab14d89ea2d161eeb0a2, type: 3}
-  m_Name: Test2
+  m_Script: {fileID: 11500000, guid: 5133edc086660d04396066bae9e79fe4, type: 3}
+  m_Name: Atreus
   m_EditorClassIdentifier: 
-  m_name: Test2
-  m_portrait: {fileID: 729289761829376914, guid: e3be0beeec62af74d95944112b06895c,
-    type: 3}
+  m_portrait: {fileID: 21300000, guid: 9cc2ed9d8d0e7cd4bae8fa82a4d0b91a, type: 3}
