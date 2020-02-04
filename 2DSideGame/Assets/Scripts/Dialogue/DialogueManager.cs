@@ -24,7 +24,8 @@ public class DialogueManager : MonoBehaviour
         }
 
         // Doesnt destroy object this script is connected too when changing between scenes.
-        DontDestroyOnLoad(gameObject);    
+        DontDestroyOnLoad(gameObject);
+        m_dialogueBox.SetActive(false);
     }
 
     //[Tooltip("Drag NPC name text to this slot")]
