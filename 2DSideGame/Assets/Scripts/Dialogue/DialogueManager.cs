@@ -42,6 +42,9 @@ public class DialogueManager : MonoBehaviour
     [SerializeField]
     private float m_textSpeed = .008f;
 
+    private bool isCurrentlyTyping; // checks if the dialogue text is typing or if its finished
+    private string m_completeText; // this auto completes the text if the user decides to skip dialogue
+
     [SerializeField]
     private Queue<DialogueInformation.Info> m_dialogueInfo = new Queue<DialogueInformation.Info>();
 
@@ -62,17 +65,28 @@ public class DialogueManager : MonoBehaviour
 
     public void DequeueDialogue()
     {
-        if(m_dialogueInfo.Count == 0)
+        if (isCurrentlyTyping)
+        {
+            CompleteText();
+            StopAllCoroutines();
+            isCurrentlyTyping = false;
+            return;
+        }
+
+        if (m_dialogueInfo.Count == 0)
         {
             EndDialogue();
             return;
         }
 
         DialogueInformation.Info info = m_dialogueInfo.Dequeue();
+  
+        m_completeText = info.m_text;
         m_nameText.text = info.m_name;
         m_dialogueText.text = info.m_text;
         m_dialoguePortrait.sprite = info.m_portrait;
 
+        m_dialogueText.text = "";
         StartCoroutine(TypeSentence(info, m_textSpeed));
     }
 
@@ -84,11 +98,17 @@ public class DialogueManager : MonoBehaviour
 
     IEnumerator TypeSentence(DialogueInformation.Info info, float textSpeed)
     {
-        m_dialogueText.text = "";
+        isCurrentlyTyping = true;
         foreach (char letter in info.m_text.ToCharArray()) // converts string to a character array
         {
             m_dialogueText.text += letter; // appends letter to the end of the string
             yield return new WaitForSeconds(textSpeed);
         }
+        isCurrentlyTyping = false;
+    }
+
+    private void CompleteText()
+    {
+        m_dialogueText.text = m_completeText;
     }
 }

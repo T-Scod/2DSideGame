@@ -4360,7 +4360,7 @@ MonoBehaviour:
   m_dialogueText: {fileID: 1238508985}
   m_dialoguePortrait: {fileID: 2089901151}
   m_dialogueBox: {fileID: 1741693118}
-  m_textSpeed: 0.008
+  m_textSpeed: 0.01
 --- !u!4 &874212201
 Transform:
   m_ObjectHideFlags: 0
