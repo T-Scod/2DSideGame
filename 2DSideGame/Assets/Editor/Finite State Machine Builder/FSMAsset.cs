@@ -1,0 +1,68 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace FSM.Builder
+{
+    [System.Serializable]
+    public class FSMAsset : ScriptableObject
+    {
+        public List<State> states = new List<State>();
+        public List<Transition> transitions = new List<Transition>();
+        public List<Comment> comments = new List<Comment>();
+
+        #region Helper Enums and Structs
+
+        [System.Serializable]
+        public enum StateType
+        {
+            WAIT,
+            SEEK,
+        }
+
+        [System.Serializable]
+        public struct State
+        {
+            public StateType type;
+            public Rect windowRect;
+
+            // Wait State Data
+            public float duration;
+
+            // Seek State Data
+            public float speed;
+            public Transform targetTransform;
+        }
+
+        [System.Serializable]
+        public struct Transition
+        {
+            public Rect windowRect;
+            public int fromState;
+            public int toState;
+            public List<Condition> conditions;
+        }
+
+        [System.Serializable]
+        public enum ConditionType
+        {
+
+        }
+
+        [System.Serializable]
+        public struct Condition
+        {
+            public ConditionType type;
+            public bool not;
+        }
+
+        [System.Serializable]
+        public struct Comment
+        {
+            public Rect windowRect;
+            public string text;
+        }
+
+        #endregion
+    }
+}

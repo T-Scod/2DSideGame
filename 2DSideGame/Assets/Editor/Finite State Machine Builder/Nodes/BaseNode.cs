@@ -8,6 +8,7 @@ namespace FSM.Builder
     {
         public Rect windowRect;
         public string windowTitle;
+        protected Vector2 scrollPosition;
 
         public virtual void DrawWindow()
         {

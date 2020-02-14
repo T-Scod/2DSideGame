@@ -5,11 +5,17 @@ using UnityEditor;
 
 namespace FSM.Builder
 {
-    public class StateNode : BaseNode
+    public abstract class StateNode : BaseNode
     {
         bool collapse;
-
         List<TransitionNode> transitions = new List<TransitionNode>();
+
+        public abstract void DrawContents();
+
+        public override void DrawWindow()
+        {
+            DrawContents();
+        }
 
         public void AddTransition()
         {
