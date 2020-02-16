@@ -5,6 +5,21 @@ using UnityEditor;
 
 namespace FSM.Builder
 {
+    [System.Serializable]
+    public enum StateType
+    {
+        WAIT,
+        SEEK,
+    }
+
+    [System.Serializable]
+    public enum ConditionType
+    {
+        PLAYER_PROXIMITY,
+        PROJECTILE_THREAT,
+        STATE_COMPLETE,
+    }
+
     public class Builder : EditorWindow
     {
         static List<BaseNode> windows = new List<BaseNode>();
@@ -18,7 +33,8 @@ namespace FSM.Builder
         {
             ADD_WAIT_STATE,
             ADD_SEEK_STATE,
-            ADD_TRANSITION,
+            MAKE_TRANSITION_START,
+            MAKE_TRANSITION_END,
             DELETE_NODE,
             DELETE_TRANSITION,
             COMMENT_NODE
@@ -137,7 +153,7 @@ namespace FSM.Builder
             GenericMenu menu = new GenericMenu();
             if (selectedNode is StateNode)
             {
-                menu.AddItem(new GUIContent("Add Transition"), false, ContextCallback, UserActions.ADD_TRANSITION);
+                menu.AddItem(new GUIContent("Add Transition"), false, ContextCallback, UserActions.MAKE_TRANSITION_START);
                 menu.AddItem(new GUIContent("Delete"), false, ContextCallback, UserActions.DELETE_NODE);
             }
             else if (selectedNode is CommentNode)
@@ -173,12 +189,20 @@ namespace FSM.Builder
                     break;
                 }
 
-                case UserActions.ADD_TRANSITION:
+                case UserActions.MAKE_TRANSITION_START:
                 {
                     if (selectedNode is StateNode from)
                     {
                         // Transition transition = from.AddTransition();
                     }
+                    break;
+                }
+
+                case UserActions.MAKE_TRANSITION_END:
+                {
+                    // @Todo:
+                    // this is to set the toState for the transition
+                    //
                     break;
                 }
 
@@ -197,11 +221,10 @@ namespace FSM.Builder
                     {
                         if (selectedNode is StateNode stateNode)
                         {
-                            //
-                            // @Todo: Delete child transitions
-                            //
+                            // @Todo: 
+                            // Delete child transitions
+                            // 
                         }
-
                         windows.Remove(selectedNode);
                     }
                     break;
@@ -243,11 +266,14 @@ namespace FSM.Builder
             {
                 if (window is TransitionNode node)
                 {
-                    //Handles.DrawLine(node.fromState.windowRect.position, node.windowRect.position);
-                    //Handles.DrawLine(node.windowRect.position, node.toState.windowRect.position);
+                    //* if we go for transitions being a separate window
+                    Handles.DrawAAPolyLine(10f, node.fromState.windowRect.position, node.toState.windowRect.position);
+                    //*/
 
+                    /* if we go for transitions being nodes 
                     DrawNodeCurve(node.fromState.windowRect, node.windowRect, Color.red, false);
                     DrawNodeCurve(node.windowRect, node.toState.windowRect, Color.red, true);
+                    //*/
                 }
             }
         }
@@ -298,20 +324,110 @@ namespace FSM.Builder
 
         public static void ApplyToTargetObject()
         {
-            Debug.Log("Applying to Target Object");
-
             if (targetObject == null)
-            {
                 return;
+
+            // remove old stuff
+            while (true)
+            {
+                FiniteState state = targetObject.gameObject.GetComponent<FiniteState>();
+                if (state == null)
+                    break;
+                DestroyImmediate(state);
             }
 
-            // apply shit
+            while (true)
+            {
+                Condition condition = targetObject.gameObject.GetComponent<Condition>();
+                if (condition == null)
+                    break;
+                DestroyImmediate(condition);
+            }
+            
+            // add new stuff
+            var stateMapping = new Dictionary<BaseNode, FiniteState>();
+            var newStates = new List<FiniteState>();
+
+            // add states 
+            foreach (var node in windows)
+            {
+                if (node is WaitStateNode waitNode)
+                {
+                    var state = targetObject.gameObject.AddComponent<WaitState>();
+                    state.waitDuration = waitNode.duration;
+
+                    stateMapping.Add(node, state);
+                    newStates.Add(state);
+                }
+                else if (node is SeekStateNode seekNode)
+                {
+                    var state = targetObject.gameObject.AddComponent<SeekState>();
+                    state.speed = seekNode.speed;
+                    state.targetTransform = seekNode.targetTransform;
+
+                    stateMapping.Add(node, state);
+                    newStates.Add(state);
+                }
+            }
+
+            // add transitions and conditions
+            foreach (var node in windows)
+            {
+                if (node is TransitionNode transNode)
+                {
+                    var fromState = stateMapping[transNode.fromState];
+                    // var toState = stateMapping[transNode.toState];
+
+                    Transition transition = new Transition();
+                    fromState.transitions.Add(transition);
+
+                    foreach (var condition in transNode.conditions)
+                    {
+                        switch (condition.type)
+                        {
+                            case ConditionType.PLAYER_PROXIMITY:
+                                var playerProximityCondition = targetObject.gameObject.AddComponent<PlayerProximityCondition>();
+                                var playerProximityNode = condition as PlayerProximityConditionNode;
+
+                                playerProximityCondition.not = playerProximityNode.not;
+                                playerProximityCondition.distance = playerProximityNode.distance;
+                                playerProximityCondition.targetTransform = playerProximityNode.targetTransform;
+
+                                transition.conditions.Add(playerProximityCondition);
+                                break;
+
+                            case ConditionType.PROJECTILE_THREAT:
+                                var projectileThreatCondition = targetObject.gameObject.AddComponent<ProjectileThreatCondition>();
+                                var projectileThreatNode = condition as ProjectileThreatConditionNode;
+
+                                projectileThreatCondition.not = projectileThreatNode.not;
+                                projectileThreatCondition.distance = projectileThreatNode.distance;
+                                projectileThreatCondition.parentTransform = projectileThreatNode.parentTransform;
+
+                                break;
+
+                            case ConditionType.STATE_COMPLETE:
+                                var stateCompleteCondition = targetObject.gameObject.AddComponent<StateCompleteCondition>();
+                                var stateCompleteNode = condition as StateCompleteConditionNode;
+
+                                stateCompleteCondition.not = stateCompleteNode.not;
+                                stateCompleteCondition.state = stateMapping[stateCompleteNode.state];
+
+                                break;
+                        }
+                    }
+                }
+            }
+
+            // link up with targetObject's FiniteStateMachine
+            targetObject.stateMachine.states = newStates.ToArray();
         }
 
         public static void SaveAsPreset()
         {
-            FSMAsset asset = CreateInstance<FSMAsset>();
-
+            var asset = CreateInstance<FSMAsset>();
+            var stateIndexes = new Dictionary<StateNode, int>();
+            
             // add all states and comments
             foreach (var window in windows)
             {
@@ -321,10 +437,11 @@ namespace FSM.Builder
                     {
                         FSMAsset.State stateAsset = new FSMAsset.State
                         {
-                            type = FSMAsset.StateType.WAIT,
+                            type = StateType.WAIT,
                             windowRect = waitState.windowRect,
                             duration = waitState.duration
                         };
+                        stateIndexes.Add(waitState, asset.states.Count);
                         asset.states.Add(stateAsset);
 
                     }
@@ -332,11 +449,12 @@ namespace FSM.Builder
                     {
                         FSMAsset.State stateAsset = new FSMAsset.State
                         {
-                            type = FSMAsset.StateType.SEEK,
+                            type = StateType.SEEK,
                             windowRect = seekState.windowRect,
                             speed = seekState.speed,
                             targetTransform = seekState.targetTransform
                         };
+                        stateIndexes.Add(seekState, asset.states.Count);
                         asset.states.Add(stateAsset);
                     }
                 }
@@ -356,20 +474,49 @@ namespace FSM.Builder
             {
                 if (window is TransitionNode transition)
                 {
-                    FSMAsset.Transition transitionAsset = new FSMAsset.Transition();
+                    FSMAsset.Transition transitionAsset = new FSMAsset.Transition
+                    {
+                        fromState = stateIndexes[transition.fromState],
+                        toState = stateIndexes[transition.toState]
+                    };
+
                     // add conditions
                     foreach (var condition in transition.conditions)
                     {
                         FSMAsset.Condition conditionAsset = new FSMAsset.Condition
                         {
-                            not = condition.not,
+                            type = condition.type,
+                            not = condition.not
                         };
+
+                        switch (condition.type)
+                        {
+                            case ConditionType.PLAYER_PROXIMITY:
+                            {
+                                var derived = condition as PlayerProximityConditionNode;
+                                conditionAsset.distance = derived.distance;
+                                conditionAsset.targetTransform = derived.targetTransform;
+                                break;
+                            }
+
+                            case ConditionType.PROJECTILE_THREAT:
+                            {
+                                var derived = condition as ProjectileThreatConditionNode;
+                                conditionAsset.distance = derived.distance;
+                                conditionAsset.parentTransform = derived.parentTransform;
+                                break;
+                            }
+
+                            case ConditionType.STATE_COMPLETE:
+                            {
+                                var derived = condition as StateCompleteConditionNode;
+                                conditionAsset.state = stateIndexes[derived.state];
+                                break;
+                            }
+                        }
+
                         transitionAsset.conditions.Add(conditionAsset);
                     }
-
-                    // @Todo:
-                    // Implement adding fromState and toState into transition asset
-                    //
                 }
             }
 
@@ -384,7 +531,10 @@ namespace FSM.Builder
 
         public static void OpenPreset()
         {
-            string assetPath = EditorUtility.OpenFilePanel("Open Asset", "../Assets", "asset");
+            // remove current windows
+            windows.Clear();
+
+            string assetPath = EditorUtility.OpenFilePanel("Open Asset", Application.dataPath, "asset");
 
             if (assetPath.Length != 0)
             {
@@ -414,22 +564,12 @@ namespace FSM.Builder
 
         private static void LoadPreset(FSMAsset asset)
         {
-            // load in comments
-            foreach (var comment in asset.comments)
-            {
-                CommentNode node = CreateInstance<CommentNode>();
-                node.windowRect = comment.windowRect;
-                node.windowTitle = "Comment";
-                node.comment = comment.text;
-                windows.Add(node);
-            }
-
             // load in states
             foreach (var state in asset.states)
             {
                 switch (state.type)
                 {
-                    case FSMAsset.StateType.SEEK:
+                    case StateType.SEEK:
                     {
                         SeekStateNode node = CreateInstance<SeekStateNode>();
                         node.windowRect = state.windowRect;
@@ -440,7 +580,7 @@ namespace FSM.Builder
                         break;
                     }
 
-                    case FSMAsset.StateType.WAIT:
+                    case StateType.WAIT:
                     {
                         WaitStateNode node = CreateInstance<WaitStateNode>();
                         node.windowRect = state.windowRect;
@@ -456,9 +596,31 @@ namespace FSM.Builder
                 }
             }
 
-            // @Todo:
             // load in transitions and their conditions
-            //
+            foreach (var transition in asset.transitions)
+            {
+                TransitionNode node = CreateInstance<TransitionNode>();
+                node.windowRect = transition.windowRect;
+                node.windowTitle = "Transition";
+                node.fromState = windows[transition.fromState] as StateNode;
+                node.toState = windows[transition.toState] as StateNode;
+
+                // @Todo:
+                // load in conditions
+                //
+
+                windows.Add(node);
+            }
+
+            // load in comments
+            foreach (var comment in asset.comments)
+            {
+                CommentNode node = CreateInstance<CommentNode>();
+                node.windowRect = comment.windowRect;
+                node.windowTitle = "Comment";
+                node.comment = comment.text;
+                windows.Add(node);
+            }
         }
     }
 }

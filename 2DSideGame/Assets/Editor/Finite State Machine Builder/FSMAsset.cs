@@ -11,15 +11,6 @@ namespace FSM.Builder
         public List<Transition> transitions = new List<Transition>();
         public List<Comment> comments = new List<Comment>();
 
-        #region Helper Enums and Structs
-
-        [System.Serializable]
-        public enum StateType
-        {
-            WAIT,
-            SEEK,
-        }
-
         [System.Serializable]
         public struct State
         {
@@ -44,16 +35,20 @@ namespace FSM.Builder
         }
 
         [System.Serializable]
-        public enum ConditionType
-        {
-
-        }
-
-        [System.Serializable]
         public struct Condition
         {
             public ConditionType type;
             public bool not;
+
+            // Player Proximity Data
+            public float distance;
+            public Transform targetTransform;
+
+            // Projectile Threat Data
+            public Transform parentTransform;
+
+            // State Complete Data
+            public int state;
         }
 
         [System.Serializable]
@@ -62,7 +57,5 @@ namespace FSM.Builder
             public Rect windowRect;
             public string text;
         }
-
-        #endregion
     }
 }

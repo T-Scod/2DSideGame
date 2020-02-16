@@ -9,7 +9,7 @@ namespace FSM.Builder
     {
         public StateNode fromState;
         public StateNode toState;
-        public List<Condition> conditions;
+        public List<ConditionNode> conditions;
 
         public override void DrawWindow()
         {

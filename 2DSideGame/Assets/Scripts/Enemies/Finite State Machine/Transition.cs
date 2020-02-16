@@ -11,8 +11,7 @@ namespace FSM
         FiniteState _state;
         public FiniteState state { get => _state; }
 
-        [SerializeField]
-        List<Condition> conditions = new List<Condition>();
+        public List<Condition> conditions = new List<Condition>();
 
         public bool conditionsMet
         {

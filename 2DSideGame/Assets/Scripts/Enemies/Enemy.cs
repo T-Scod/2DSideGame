@@ -22,8 +22,7 @@ public sealed class Enemy : MonoBehaviour
         return r != 0;
     }
 
-    [SerializeField]
-    FiniteStateMachine stateMachine;
+    public FiniteStateMachine stateMachine;
 
     public new Collider2D collider { get; private set; }
 

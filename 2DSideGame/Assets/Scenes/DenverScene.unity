@@ -153,7 +153,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stateMachine:
-    currentState: {fileID: 0}
     states: []
 --- !u!50 &163245418
 Rigidbody2D:
@@ -651,7 +650,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stateMachine:
-    currentState: {fileID: 2040052671}
     states:
     - {fileID: 2040052671}
     - {fileID: 2040052674}

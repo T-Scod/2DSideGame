@@ -7,11 +7,9 @@ namespace FSM
     [System.Serializable]
     public sealed class FiniteStateMachine
     {
-        [SerializeField]
-        FiniteState currentState;
+        public FiniteState[] states;
 
-        [SerializeField]
-        FiniteState[] states;
+        private FiniteState currentState;
 
         public Enemy enemy { get; private set; }
 
@@ -23,6 +21,8 @@ namespace FSM
             {
                 state.SetStateMachine(this);
             }
+
+            currentState = states[0];
         }
 
         public void Update()
