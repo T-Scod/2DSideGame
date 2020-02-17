@@ -5,7 +5,7 @@ using UnityEngine;
 public class SkillManager : MonoBehaviour
 {
     [Header("-- Skill Init --")]
-    [Tooltip("This is used to display how many skills the player can equip")]
+    [Tooltip("This is used to display how many skills the player can equip (capped at 3)")]
     public List<BaseSkill> equippedSkills = new List<BaseSkill>();
     [Tooltip("This is used to show how many skills in the players has acquired")]
     public List<BaseSkill> skills = new List<BaseSkill>();
@@ -21,30 +21,37 @@ public class SkillManager : MonoBehaviour
 
     protected void Awake()
     {
+        // If we have at least 1 skill
         if (skills.Count > 0)
         {
+            // intialise the skills available
             foreach (BaseSkill skill in skills)
             {
                 skill.Init();
             }
         }
 
+        // Disables the tab
         if (skillTab != null) { skillTab.SetActive(false); }
         tabOpen = false;
     }
 
     protected void Update()
     {
+        // If we have at least 1 equipped skill
         if (equippedSkills.Count > 0)
         {
+            // update each skill equipped
             foreach (BaseSkill skillequip in equippedSkills)
             {
                 skillequip.Update();
             }
         }
 
+        // if we have at least 1 skill
         if (skills.Count > 0)
         {
+            // check if we are able to unlock the skill
             foreach (BaseSkill skill in skills)
             {
                 skill.MetRequirements();
@@ -53,6 +60,7 @@ public class SkillManager : MonoBehaviour
 
         if (skillTab != null)
         {
+            // Opens/Closes the Skill Tab
             if (Input.GetKeyDown(KeyCode.I))
             {
                 if (!skillTab.activeInHierarchy && !tabOpen)
@@ -97,10 +105,13 @@ public class SkillManager : MonoBehaviour
     {
         if (equippedSkills.Count != skillAmount && player != null)
         {
-            // returns cost back to normal
-            player.cost += equippedSkills[skillIndex].GetCost();
-            equippedSkills[skillIndex].OnUnEquip();
-            equippedSkills.RemoveAt(skillIndex);
+            if (equippedSkills.Count > 0)
+            {
+                // returns cost back to normal
+                player.cost += equippedSkills[skillIndex].GetCost();
+                equippedSkills[skillIndex].OnUnEquip();
+                equippedSkills.RemoveAt(skillIndex);
+            }
         }
     }
 
@@ -118,8 +129,10 @@ public class SkillManager : MonoBehaviour
     /// </summary>
     protected void OnHover()
     {
+        // If the tab is open
         if (skillTab.activeInHierarchy)
         {
+            // Display the information of the skill while the mouse is on the icon
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, Mathf.Infinity);
             if (hit.collider != null && hit.collider.gameObject.layer == LayerMask.NameToLayer("Skill"))
@@ -131,6 +144,7 @@ public class SkillManager : MonoBehaviour
             {
                 if (prevSkillBox != null)
                 {
+                    // Stores the previous icon hovered over
                     prevSkillBox.GetComponent<SkillBox>().Skill.GetSkillBox().SetActive(false);
                     prevSkillBox = null; 
                 }

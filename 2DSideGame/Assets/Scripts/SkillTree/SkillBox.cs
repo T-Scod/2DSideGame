@@ -18,6 +18,7 @@ public class SkillBox : MonoBehaviour
 
     void Start()
     {
+        // Initialises a Skill Box for a skill
         if (Skill != null && gameObject != null &&
             Name != null && Description != null &&
             Type != null && Cost != null && Requirement != null)
