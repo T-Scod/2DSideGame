@@ -28,9 +28,10 @@ namespace FSM.Builder
         [System.Serializable]
         public struct Transition
         {
-            public Rect windowRect;
             public int fromState;
+            public Vector2 fromStatePos;
             public int toState;
+            public Vector2 toStatePos;
             public List<Condition> conditions;
         }
 

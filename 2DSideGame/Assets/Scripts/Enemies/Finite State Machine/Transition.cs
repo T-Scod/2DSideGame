@@ -7,10 +7,7 @@ namespace FSM
     [System.Serializable]
     public sealed class Transition
     {
-        [SerializeField]
-        FiniteState _state;
-        public FiniteState state { get => _state; }
-
+        public FiniteState state;
         public List<Condition> conditions = new List<Condition>();
 
         public bool conditionsMet

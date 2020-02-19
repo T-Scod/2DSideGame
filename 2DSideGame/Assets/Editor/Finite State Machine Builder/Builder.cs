@@ -25,9 +25,11 @@ namespace FSM.Builder
         static List<BaseNode> windows = new List<BaseNode>();
         static Enemy targetObject;
         Vector3 mousePosition;
-        bool makeTransition;
+        bool makingTransition;
         bool clickedOnWindow;
+        Vector2 clickedPosition;
         BaseNode selectedNode;
+        StateNode fromNode;
 
         public enum UserActions
         {
@@ -36,7 +38,6 @@ namespace FSM.Builder
             MAKE_TRANSITION_START,
             MAKE_TRANSITION_END,
             DELETE_NODE,
-            DELETE_TRANSITION,
             COMMENT_NODE
         }
 
@@ -82,6 +83,7 @@ namespace FSM.Builder
             GUILayout.BeginScrollView(new Vector2(0, 0));
 
             UserInput(e);
+            DrawTransitionLines();
             DrawWindows();
 
             GUILayout.EndScrollView();
@@ -94,7 +96,7 @@ namespace FSM.Builder
 
         void UserInput(Event e)
         {
-            if (e.button == 1 && !makeTransition)
+            if (e.button == 1 && !makingTransition)
             {
                 if (e.type == EventType.MouseDown)
                 {
@@ -102,13 +104,22 @@ namespace FSM.Builder
                 }
             }
 
-            if (e.button == 0 && !makeTransition)
+            if (e.button == 0 && !makingTransition)
             {
                 if (e.type == EventType.MouseDown)
                 {
+                    // @Todo: 
+                    // Implement LeftClick(e)
                     //
-                    // @Todo: Left Click
-                    //
+                    LeftClick(e);
+                }
+            }
+
+            if (e.button == 0 && makingTransition)
+            {
+                if (e.type == EventType.MouseDown)
+                {
+                    CheckIfTransitionCanBeMade(e);
                 }
             }
         }
@@ -135,6 +146,32 @@ namespace FSM.Builder
             else
             {
                 ModifyNode(e);
+            }
+        }
+
+        void LeftClick(Event e)
+        {
+           
+        }
+
+        void CheckIfTransitionCanBeMade(Event e)
+        {
+            selectedNode = null;
+            clickedOnWindow = false;
+            foreach (var window in windows)
+            {
+                if (window.windowRect.Contains(e.mousePosition) && window != fromNode && window is StateNode)
+                {
+                    selectedNode = window;
+                    clickedOnWindow = true;
+                    ContextCallback(UserActions.MAKE_TRANSITION_END);
+                    break;
+                }
+            }
+
+            if (!clickedOnWindow)
+            {
+                makingTransition = false;
             }
         }
 
@@ -193,16 +230,26 @@ namespace FSM.Builder
                 {
                     if (selectedNode is StateNode from)
                     {
-                        // Transition transition = from.AddTransition();
+                        makingTransition = true;
+                        fromNode = from;
+                        clickedPosition = mousePosition;
                     }
                     break;
                 }
 
                 case UserActions.MAKE_TRANSITION_END:
                 {
-                    // @Todo:
-                    // this is to set the toState for the transition
-                    //
+                    if (selectedNode is StateNode toNode)
+                    {
+                        var transition = CreateInstance<TransitionNode>();
+                        transition.fromState = fromNode;
+                        transition.fromStatePos = clickedPosition - fromNode.windowRect.position;
+                        transition.toState = toNode;
+                        transition.toStatePos = (Vector2)mousePosition - toNode.windowRect.position;
+                        fromNode.transitionNodes.Add(transition);
+                        windows.Add(transition);
+                        makingTransition = false;
+                    }
                     break;
                 }
 
@@ -221,17 +268,26 @@ namespace FSM.Builder
                     {
                         if (selectedNode is StateNode stateNode)
                         {
-                            // @Todo: 
-                            // Delete child transitions
-                            // 
+                            foreach (var transition in stateNode.transitionNodes)
+                            {
+                                transition.toState.transitionNodes.ForEach(t =>
+                                {
+                                    if (t.toState == stateNode)
+                                        windows.Remove(t);
+                                });
+                                transition.toState.transitionNodes.RemoveAll(t => t.toState == stateNode);
+                                windows.Remove(transition);
+                            }
+                            stateNode.transitionNodes.Clear();
+                        }
+                        else if (selectedNode is TransitionNode transitionNode)
+                        {
+                            transitionNode.fromState.transitionNodes.Remove(transitionNode);
                         }
                         windows.Remove(selectedNode);
                     }
                     break;
                 }
-
-                case UserActions.DELETE_TRANSITION:
-                    break;
 
                 default:
                     break;
@@ -267,7 +323,7 @@ namespace FSM.Builder
                 if (window is TransitionNode node)
                 {
                     //* if we go for transitions being a separate window
-                    Handles.DrawAAPolyLine(10f, node.fromState.windowRect.position, node.toState.windowRect.position);
+                    Handles.DrawAAPolyLine(10f, node.fromState.windowRect.position + node.fromStatePos, node.toState.windowRect.position + node.toStatePos);
                     //*/
 
                     /* if we go for transitions being nodes 
@@ -277,50 +333,6 @@ namespace FSM.Builder
                 }
             }
         }
-
-        private static void DrawNodeCurve(Rect start, Rect end, Color curveColour, bool left)
-        {
-            Vector3 startPos = new Vector3
-            {
-                x = left ? start.x + start.width : start.x,
-                y = start.y + (start.height * .5f),
-                z = 0f
-            };
-
-            Vector3 endPos = new Vector3(end.x + (end.width * .5f), end.y + (end.height * .5f), 0f);
-
-            Vector3 startTan = startPos + Vector3.right * 50f;
-            Vector3 endTan = endPos + Vector3.left * 50f;
-
-            for (int i = 0; i < 3; i++)
-            {
-                Handles.DrawBezier(startPos, endPos, startTan, endTan, curveColour, null, (i + 1) * .5f);
-            }
-
-            Handles.DrawBezier(startPos, endPos, startTan, endTan, curveColour, null, 1);
-
-        }
-
-        //public static TransitionNode AddTransitionNode(int index, Transition transition, StateNode from)
-        //{
-        //    Rect fromRect = from.windowRect;
-        //    fromRect.x += 50;
-        //    float targetY = fromRect.y - fromRect.height;
-
-        //    if (from.finiteState != null)
-        //    {
-        //        targetY += (index * 100);
-        //    }
-
-        //    fromRect.y = targetY;
-
-        //    TransitionNode transitionNode = CreateInstance<TransitionNode>();
-        //    transitionNode.Init(from, transition);
-        //    transitionNode.windowRect = new Rect(fromRect.x + 200 + 100, fromRect.y + (fromRect.y * .7f), 200, 80);
-        //    transitionNode.windowTitle = "Condition Check";
-        //    windows.Add(transitionNode);
-        //    return transitionNode;
-        //}
 
         public static void ApplyToTargetObject()
         {
@@ -380,6 +392,7 @@ namespace FSM.Builder
 
                     Transition transition = new Transition();
                     fromState.transitions.Add(transition);
+                    transition.state = stateMapping[transNode.toState];
 
                     foreach (var condition in transNode.conditions)
                     {
@@ -477,7 +490,9 @@ namespace FSM.Builder
                     FSMAsset.Transition transitionAsset = new FSMAsset.Transition
                     {
                         fromState = stateIndexes[transition.fromState],
-                        toState = stateIndexes[transition.toState]
+                        fromStatePos = transition.fromStatePos,
+                        toState = stateIndexes[transition.toState],
+                        toStatePos = transition.toStatePos
                     };
 
                     // add conditions
@@ -517,6 +532,7 @@ namespace FSM.Builder
 
                         transitionAsset.conditions.Add(conditionAsset);
                     }
+                    asset.transitions.Add(transitionAsset);
                 }
             }
 
@@ -600,10 +616,11 @@ namespace FSM.Builder
             foreach (var transition in asset.transitions)
             {
                 TransitionNode node = CreateInstance<TransitionNode>();
-                node.windowRect = transition.windowRect;
                 node.windowTitle = "Transition";
                 node.fromState = windows[transition.fromState] as StateNode;
                 node.toState = windows[transition.toState] as StateNode;
+                node.fromStatePos = transition.fromStatePos;
+                node.toStatePos = transition.toStatePos;
 
                 // @Todo:
                 // load in conditions
