@@ -7,7 +7,6 @@ namespace FSM.Builder
 {
     public abstract class StateNode : BaseNode
     {
-        public List<TransitionNode> transitionNodes = new List<TransitionNode>();
         public abstract void DrawContents();
         public override void DrawWindow()
         {

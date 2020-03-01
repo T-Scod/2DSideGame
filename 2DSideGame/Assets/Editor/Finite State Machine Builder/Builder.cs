@@ -129,23 +129,29 @@ namespace FSM.Builder
             selectedNode = null;
             clickedOnWindow = false;
 
-            for (int i = 0; i < windows.Count; i++)
+            foreach (var window in windows)
             {
-                if (windows[i].windowRect.Contains(e.mousePosition))
+                if (window is TransitionNode t && MouseCollidingWithTransition(e.mousePosition, t))
                 {
-                    selectedNode = windows[i];
+                    selectedNode = window;
+                    clickedOnWindow = true;
+                    break;
+                }
+                else if (window.windowRect.Contains(e.mousePosition))
+                {
+                    selectedNode = window;
                     clickedOnWindow = true;
                     break;
                 }
             }
 
-            if (!clickedOnWindow)
+            if (clickedOnWindow)
             {
-                AddNewNode(e);
+                ModifyNode(e);
             }
             else
             {
-                ModifyNode(e);
+                AddNewNode(e);
             }
         }
 
@@ -191,6 +197,10 @@ namespace FSM.Builder
             if (selectedNode is StateNode)
             {
                 menu.AddItem(new GUIContent("Add Transition"), false, ContextCallback, UserActions.MAKE_TRANSITION_START);
+                menu.AddItem(new GUIContent("Delete"), false, ContextCallback, UserActions.DELETE_NODE);
+            }
+            else if (selectedNode is TransitionNode)
+            {
                 menu.AddItem(new GUIContent("Delete"), false, ContextCallback, UserActions.DELETE_NODE);
             }
             else if (selectedNode is CommentNode)
@@ -246,7 +256,6 @@ namespace FSM.Builder
                         transition.fromStatePos = clickedPosition - fromNode.windowRect.position;
                         transition.toState = toNode;
                         transition.toStatePos = (Vector2)mousePosition - toNode.windowRect.position;
-                        fromNode.transitionNodes.Add(transition);
                         windows.Add(transition);
                         makingTransition = false;
                     }
@@ -268,21 +277,11 @@ namespace FSM.Builder
                     {
                         if (selectedNode is StateNode stateNode)
                         {
-                            foreach (var transition in stateNode.transitionNodes)
-                            {
-                                transition.toState.transitionNodes.ForEach(t =>
+                                // check if a transition is from this node or goes to this node
+                                windows.RemoveAll(n =>
                                 {
-                                    if (t.toState == stateNode)
-                                        windows.Remove(t);
+                                    return (n is TransitionNode t) && (t.fromState == selectedNode || t.toState == selectedNode);
                                 });
-                                transition.toState.transitionNodes.RemoveAll(t => t.toState == stateNode);
-                                windows.Remove(transition);
-                            }
-                            stateNode.transitionNodes.Clear();
-                        }
-                        else if (selectedNode is TransitionNode transitionNode)
-                        {
-                            transitionNode.fromState.transitionNodes.Remove(transitionNode);
                         }
                         windows.Remove(selectedNode);
                     }
@@ -440,7 +439,7 @@ namespace FSM.Builder
         {
             var asset = CreateInstance<FSMAsset>();
             var stateIndexes = new Dictionary<StateNode, int>();
-            
+
             // add all states and comments
             foreach (var window in windows)
             {
@@ -638,6 +637,25 @@ namespace FSM.Builder
                 node.comment = comment.text;
                 windows.Add(node);
             }
+        }
+
+        bool MouseCollidingWithTransition(Vector2 mousePos, TransitionNode node)
+        {
+            // get distance from mouse to the ends of the line
+            float d1 = Vector2.Distance(mousePos, node.toState.windowRect.position);
+            float d2 = Vector2.Distance(mousePos, node.fromState.windowRect.position);
+
+            float lineLen = Vector2.Distance(node.toState.windowRect.position, node.fromState.windowRect.position);
+
+            // introduce level of inaccuracy.  Higher nums. = less accurate detection
+            float buffer = 50f;
+
+            // if the two distances are equal to the line's length,
+            // the point in on the line.
+            // note we use the buffer to give a range rather than one num.
+            if (d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer)
+                return true;
+            return false;
         }
     }
 }
