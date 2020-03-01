@@ -653,9 +653,7 @@ namespace FSM.Builder
             // if the two distances are equal to the line's length,
             // the point in on the line.
             // note we use the buffer to give a range rather than one num.
-            if (d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer)
-                return true;
-            return false;
+            return d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer;
         }
     }
 }
