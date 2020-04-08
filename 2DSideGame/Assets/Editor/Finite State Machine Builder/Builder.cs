@@ -119,7 +119,7 @@ namespace FSM.Builder
             {
                 if (e.type == EventType.MouseDown)
                 {
-                    CheckIfTransitionCanBeMade(e);
+                    MaybeMakeTransition(e);
                 }
             }
         }
@@ -160,7 +160,7 @@ namespace FSM.Builder
            
         }
 
-        void CheckIfTransitionCanBeMade(Event e)
+        void MaybeMakeTransition(Event e)
         {
             selectedNode = null;
             clickedOnWindow = false;
@@ -277,11 +277,8 @@ namespace FSM.Builder
                     {
                         if (selectedNode is StateNode stateNode)
                         {
-                                // check if a transition is from this node or goes to this node
-                                windows.RemoveAll(n =>
-                                {
-                                    return (n is TransitionNode t) && (t.fromState == selectedNode || t.toState == selectedNode);
-                                });
+                                // remove transitions that come from this node or go to this node
+                                windows.RemoveAll(n => (n is TransitionNode t) && (t.fromState == selectedNode || t.toState == selectedNode));
                         }
                         windows.Remove(selectedNode);
                     }
